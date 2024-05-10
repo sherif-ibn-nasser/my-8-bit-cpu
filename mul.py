@@ -2,8 +2,8 @@
 def fmt(a:int):
     return f"0x{a:02x}"
 
-AL=0xff
-BL=0xff
+AL=0x2c
+BL=0x03
 
 clk=0
 A_ALU=AL

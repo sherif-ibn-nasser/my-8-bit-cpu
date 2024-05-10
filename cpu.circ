@@ -226,17 +226,11 @@
       <a name="spacing" val="4"/>
     </comp>
     <comp lib="0" loc="(1390,1470)" name="Splitter">
-      <a name="appear" val="right"/>
+      <a name="facing" val="west"/>
       <a name="fanout" val="16"/>
       <a name="incoming" val="16"/>
-      <a name="spacing" val="3"/>
     </comp>
     <comp lib="0" loc="(1390,1470)" name="Splitter">
-      <a name="facing" val="west"/>
-      <a name="fanout" val="16"/>
-      <a name="incoming" val="16"/>
-    </comp>
-    <comp lib="0" loc="(1390,2020)" name="Splitter">
       <a name="appear" val="right"/>
       <a name="fanout" val="16"/>
       <a name="incoming" val="16"/>
@@ -246,6 +240,12 @@
       <a name="facing" val="west"/>
       <a name="fanout" val="16"/>
       <a name="incoming" val="16"/>
+    </comp>
+    <comp lib="0" loc="(1390,2020)" name="Splitter">
+      <a name="appear" val="right"/>
+      <a name="fanout" val="16"/>
+      <a name="incoming" val="16"/>
+      <a name="spacing" val="3"/>
     </comp>
     <comp lib="0" loc="(1400,1260)" name="Tunnel">
       <a name="label" val="InstFetch"/>
@@ -710,37 +710,37 @@
     </comp>
     <comp lib="0" loc="(2010,1420)" name="Splitter">
       <a name="appear" val="center"/>
-      <a name="bit1" val="0"/>
-      <a name="bit10" val="1"/>
-      <a name="bit11" val="1"/>
-      <a name="bit12" val="1"/>
-      <a name="bit13" val="1"/>
-      <a name="bit14" val="1"/>
-      <a name="bit15" val="1"/>
-      <a name="bit16" val="2"/>
-      <a name="bit17" val="2"/>
-      <a name="bit18" val="2"/>
-      <a name="bit19" val="2"/>
-      <a name="bit2" val="0"/>
-      <a name="bit20" val="2"/>
-      <a name="bit21" val="2"/>
-      <a name="bit22" val="2"/>
-      <a name="bit23" val="2"/>
-      <a name="bit24" val="3"/>
-      <a name="bit25" val="3"/>
-      <a name="bit26" val="3"/>
-      <a name="bit27" val="3"/>
-      <a name="bit28" val="3"/>
-      <a name="bit29" val="3"/>
-      <a name="bit3" val="0"/>
-      <a name="bit30" val="3"/>
-      <a name="bit31" val="3"/>
-      <a name="bit4" val="0"/>
-      <a name="bit5" val="0"/>
-      <a name="bit6" val="0"/>
-      <a name="bit7" val="0"/>
-      <a name="bit8" val="1"/>
-      <a name="bit9" val="1"/>
+      <a name="bit0" val="3"/>
+      <a name="bit1" val="3"/>
+      <a name="bit10" val="2"/>
+      <a name="bit11" val="2"/>
+      <a name="bit12" val="2"/>
+      <a name="bit13" val="2"/>
+      <a name="bit14" val="2"/>
+      <a name="bit15" val="2"/>
+      <a name="bit16" val="1"/>
+      <a name="bit17" val="1"/>
+      <a name="bit18" val="1"/>
+      <a name="bit19" val="1"/>
+      <a name="bit2" val="3"/>
+      <a name="bit20" val="1"/>
+      <a name="bit21" val="1"/>
+      <a name="bit22" val="1"/>
+      <a name="bit23" val="1"/>
+      <a name="bit24" val="0"/>
+      <a name="bit25" val="0"/>
+      <a name="bit26" val="0"/>
+      <a name="bit27" val="0"/>
+      <a name="bit28" val="0"/>
+      <a name="bit29" val="0"/>
+      <a name="bit30" val="0"/>
+      <a name="bit31" val="0"/>
+      <a name="bit4" val="3"/>
+      <a name="bit5" val="3"/>
+      <a name="bit6" val="3"/>
+      <a name="bit7" val="3"/>
+      <a name="bit8" val="2"/>
+      <a name="bit9" val="2"/>
       <a name="facing" val="west"/>
       <a name="fanout" val="4"/>
       <a name="incoming" val="32"/>
@@ -929,6 +929,10 @@
       <a name="facing" val="east"/>
       <a name="label" val="HALT"/>
     </comp>
+    <comp lib="0" loc="(2280,2020)" name="Tunnel">
+      <a name="label" val="MATH_MainWLine"/>
+      <a name="width" val="45"/>
+    </comp>
     <comp lib="0" loc="(2280,2110)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="CurrentSubInst"/>
@@ -954,10 +958,6 @@
       <a name="facing" val="north"/>
       <a name="radix" val="16"/>
     </comp>
-    <comp lib="0" loc="(2290,2020)" name="Tunnel">
-      <a name="label" val="MATH_MainWLine"/>
-      <a name="width" val="45"/>
-    </comp>
     <comp lib="0" loc="(2300,2110)" name="Splitter">
       <a name="appear" val="right"/>
       <a name="bit0" val="1"/>
@@ -977,6 +977,11 @@
     <comp lib="0" loc="(2310,1520)" name="Tunnel">
       <a name="label" val="MUL_DIV_MainWLine"/>
       <a name="width" val="45"/>
+    </comp>
+    <comp lib="0" loc="(2320,2510)" name="Tunnel">
+      <a name="facing" val="east"/>
+      <a name="label" val="MUL_DIV_ALUWLine"/>
+      <a name="width" val="40"/>
     </comp>
     <comp lib="0" loc="(2340,1010)" name="Tunnel">
       <a name="label" val="RESET"/>
@@ -1012,6 +1017,11 @@
       <a name="facing" val="south"/>
       <a name="label" val="Sign_ALU"/>
     </comp>
+    <comp lib="0" loc="(2480,2530)" name="Tunnel">
+      <a name="facing" val="east"/>
+      <a name="label" val="MATH_ALUWLine"/>
+      <a name="width" val="40"/>
+    </comp>
     <comp lib="0" loc="(2490,1010)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="SF"/>
@@ -1040,6 +1050,10 @@
       <a name="label" val="MATH_ALU_OP"/>
       <a name="width" val="4"/>
     </comp>
+    <comp lib="0" loc="(2500,2570)" name="Tunnel">
+      <a name="facing" val="north"/>
+      <a name="label" val="MATH"/>
+    </comp>
     <comp lib="0" loc="(2510,410)" name="Splitter">
       <a name="appear" val="right"/>
       <a name="facing" val="west"/>
@@ -1053,6 +1067,10 @@
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
       <a name="spacing" val="2"/>
+    </comp>
+    <comp lib="0" loc="(2580,2520)" name="Tunnel">
+      <a name="label" val="ALUWLine"/>
+      <a name="width" val="40"/>
     </comp>
     <comp lib="0" loc="(2590,1140)" name="Tunnel">
       <a name="facing" val="east"/>
@@ -1353,15 +1371,15 @@
       <a name="label" val="MATH_REG_REG"/>
     </comp>
     <comp lib="0" loc="(2900,2430)" name="Splitter">
+      <a name="appear" val="right"/>
+      <a name="fanout" val="8"/>
+      <a name="incoming" val="8"/>
+    </comp>
+    <comp lib="0" loc="(2900,2430)" name="Splitter">
       <a name="facing" val="west"/>
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
       <a name="spacing" val="3"/>
-    </comp>
-    <comp lib="0" loc="(2900,2430)" name="Splitter">
-      <a name="appear" val="right"/>
-      <a name="fanout" val="8"/>
-      <a name="incoming" val="8"/>
     </comp>
     <comp lib="0" loc="(2920,800)" name="Splitter">
       <a name="appear" val="center"/>
@@ -1746,10 +1764,6 @@
     </comp>
     <comp lib="0" loc="(3490,50)" name="Tunnel">
       <a name="label" val="R_ALU_SH_BIT"/>
-    </comp>
-    <comp lib="0" loc="(3510,2570)" name="Tunnel">
-      <a name="label" val="ALUWLine"/>
-      <a name="width" val="40"/>
     </comp>
     <comp lib="0" loc="(3590,440)" name="Splitter">
       <a name="appear" val="right"/>
@@ -2221,6 +2235,9 @@
     <comp lib="2" loc="(2450,2150)" name="Multiplexer">
       <a name="width" val="4"/>
     </comp>
+    <comp lib="2" loc="(2520,2520)" name="Multiplexer">
+      <a name="width" val="40"/>
+    </comp>
     <comp lib="2" loc="(2800,430)" name="Multiplexer">
       <a name="width" val="8"/>
     </comp>
@@ -2312,11 +2329,6 @@
       <a name="label" val="HALT"/>
       <a name="offcolor" val="#ff001d"/>
     </comp>
-    <comp lib="5" loc="(2340,910)" name="LED">
-      <a name="color" val="#00f00a"/>
-      <a name="label" val="CLK"/>
-      <a name="offcolor" val="#ff001d"/>
-    </comp>
     <comp lib="5" loc="(2570,1010)" name="LED">
       <a name="color" val="#00f00a"/>
       <a name="label" val="SF"/>
@@ -2356,9 +2368,12 @@
       <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2680,780)" name="Hex Digit Display">
+      <a name="bg" val="#000000"/>
+      <a name="color" val="#ff0000"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelloc" val="north"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#000000"/>
     </comp>
     <comp lib="5" loc="(2680,910)" name="Hex Digit Display">
       <a name="bg" val="#000000"/>
@@ -2376,8 +2391,11 @@
       <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2720,780)" name="Hex Digit Display">
+      <a name="bg" val="#000000"/>
+      <a name="color" val="#ff0000"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#000000"/>
     </comp>
     <comp lib="5" loc="(2720,910)" name="Hex Digit Display">
       <a name="bg" val="#000000"/>
@@ -2395,9 +2413,12 @@
       <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2780,780)" name="Hex Digit Display">
+      <a name="bg" val="#000000"/>
+      <a name="color" val="#ff0000"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelloc" val="north"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#000000"/>
     </comp>
     <comp lib="5" loc="(2780,910)" name="Hex Digit Display">
       <a name="bg" val="#000000"/>
@@ -2415,8 +2436,11 @@
       <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2820,780)" name="Hex Digit Display">
+      <a name="bg" val="#000000"/>
+      <a name="color" val="#ff0000"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#000000"/>
     </comp>
     <comp lib="5" loc="(2820,910)" name="Hex Digit Display">
       <a name="bg" val="#000000"/>
@@ -2434,15 +2458,20 @@
       <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2880,780)" name="Hex Digit Display">
+      <a name="bg" val="#000000"/>
+      <a name="color" val="#ff0000"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelloc" val="north"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#000000"/>
     </comp>
     <comp lib="5" loc="(2880,910)" name="Hex Digit Display">
+      <a name="bg" val="#ffffff"/>
       <a name="color" val="#3300f0"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelloc" val="north"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2920,1040)" name="Hex Digit Display">
       <a name="bg" val="#ffffff"/>
@@ -2452,13 +2481,18 @@
       <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2920,780)" name="Hex Digit Display">
+      <a name="bg" val="#000000"/>
+      <a name="color" val="#ff0000"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#000000"/>
     </comp>
     <comp lib="5" loc="(2920,910)" name="Hex Digit Display">
+      <a name="bg" val="#ffffff"/>
       <a name="color" val="#3300f0"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2980,1040)" name="Hex Digit Display">
       <a name="bg" val="#ffffff"/>
@@ -2469,15 +2503,20 @@
       <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(2980,780)" name="Hex Digit Display">
+      <a name="bg" val="#000000"/>
+      <a name="color" val="#ff0000"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelloc" val="north"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#000000"/>
     </comp>
     <comp lib="5" loc="(2980,910)" name="Hex Digit Display">
+      <a name="bg" val="#ffffff"/>
       <a name="color" val="#3300f0"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelloc" val="north"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(3020,1040)" name="Hex Digit Display">
       <a name="bg" val="#ffffff"/>
@@ -2487,12 +2526,17 @@
       <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="5" loc="(3020,780)" name="Hex Digit Display">
+      <a name="bg" val="#000000"/>
+      <a name="color" val="#ff0000"/>
       <a name="decimalPoint" val="false"/>
+      <a name="offcolor" val="#000000"/>
     </comp>
     <comp lib="5" loc="(3020,910)" name="Hex Digit Display">
+      <a name="bg" val="#ffffff"/>
       <a name="color" val="#3300f0"/>
       <a name="decimalPoint" val="false"/>
       <a name="labelvisible" val="true"/>
+      <a name="offcolor" val="#ffffff"/>
     </comp>
     <comp lib="8" loc="(1100,1240)" name="Text">
       <a name="text" val="ExStateLine"/>
@@ -2807,7 +2851,7 @@
     <wire from="(2000,920)" to="(2030,920)"/>
     <wire from="(2010,1420)" to="(2020,1420)"/>
     <wire from="(2110,1520)" to="(2310,1520)"/>
-    <wire from="(2110,2020)" to="(2290,2020)"/>
+    <wire from="(2110,2020)" to="(2280,2020)"/>
     <wire from="(2180,2150)" to="(2230,2150)"/>
     <wire from="(2180,2170)" to="(2230,2170)"/>
     <wire from="(2230,1010)" to="(2340,1010)"/>
@@ -2815,7 +2859,7 @@
     <wire from="(2230,450)" to="(2260,450)"/>
     <wire from="(2230,620)" to="(2280,620)"/>
     <wire from="(2230,650)" to="(2260,650)"/>
-    <wire from="(2230,960)" to="(2280,960)"/>
+    <wire from="(2230,960)" to="(2340,960)"/>
     <wire from="(2240,2180)" to="(2240,2200)"/>
     <wire from="(2260,2160)" to="(2420,2160)"/>
     <wire from="(2260,440)" to="(2260,450)"/>
@@ -2839,13 +2883,11 @@
     <wire from="(2280,820)" to="(2280,860)"/>
     <wire from="(2280,820)" to="(2290,820)"/>
     <wire from="(2280,860)" to="(2340,860)"/>
-    <wire from="(2280,910)" to="(2280,960)"/>
-    <wire from="(2280,910)" to="(2340,910)"/>
-    <wire from="(2280,960)" to="(2340,960)"/>
     <wire from="(2300,530)" to="(2310,530)"/>
     <wire from="(2310,450)" to="(2310,530)"/>
     <wire from="(2310,530)" to="(2310,610)"/>
     <wire from="(2320,2140)" to="(2420,2140)"/>
+    <wire from="(2320,2510)" to="(2490,2510)"/>
     <wire from="(2330,430)" to="(2380,430)"/>
     <wire from="(2330,630)" to="(2390,630)"/>
     <wire from="(2330,810)" to="(2340,810)"/>
@@ -2880,6 +2922,7 @@
     <wire from="(2470,680)" to="(2620,680)"/>
     <wire from="(2480,150)" to="(2480,170)"/>
     <wire from="(2480,200)" to="(2480,260)"/>
+    <wire from="(2480,2530)" to="(2490,2530)"/>
     <wire from="(2480,260)" to="(2490,260)"/>
     <wire from="(2480,420)" to="(2480,460)"/>
     <wire from="(2480,460)" to="(2490,460)"/>
@@ -2889,10 +2932,12 @@
     <wire from="(2490,860)" to="(2570,860)"/>
     <wire from="(2490,910)" to="(2570,910)"/>
     <wire from="(2490,960)" to="(2570,960)"/>
+    <wire from="(2500,2540)" to="(2500,2570)"/>
     <wire from="(2510,410)" to="(2510,440)"/>
     <wire from="(2510,440)" to="(2740,440)"/>
     <wire from="(2510,610)" to="(2510,640)"/>
     <wire from="(2510,640)" to="(2740,640)"/>
+    <wire from="(2520,2520)" to="(2580,2520)"/>
     <wire from="(2540,230)" to="(2540,420)"/>
     <wire from="(2540,420)" to="(2740,420)"/>
     <wire from="(2540,450)" to="(2540,620)"/>

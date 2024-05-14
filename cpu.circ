@@ -256,15 +256,15 @@
       <a name="incoming" val="16"/>
     </comp>
     <comp lib="0" loc="(1390,2020)" name="Splitter">
+      <a name="facing" val="west"/>
+      <a name="fanout" val="16"/>
+      <a name="incoming" val="16"/>
+    </comp>
+    <comp lib="0" loc="(1390,2020)" name="Splitter">
       <a name="appear" val="right"/>
       <a name="fanout" val="16"/>
       <a name="incoming" val="16"/>
       <a name="spacing" val="3"/>
-    </comp>
-    <comp lib="0" loc="(1390,2020)" name="Splitter">
-      <a name="facing" val="west"/>
-      <a name="fanout" val="16"/>
-      <a name="incoming" val="16"/>
     </comp>
     <comp lib="0" loc="(1400,1260)" name="Tunnel">
       <a name="label" val="InstFetch"/>
@@ -1276,15 +1276,15 @@
       <a name="spacing" val="4"/>
     </comp>
     <comp lib="0" loc="(2740,2200)" name="Splitter">
+      <a name="appear" val="right"/>
+      <a name="fanout" val="8"/>
+      <a name="incoming" val="8"/>
+    </comp>
+    <comp lib="0" loc="(2740,2200)" name="Splitter">
       <a name="facing" val="west"/>
       <a name="fanout" val="8"/>
       <a name="incoming" val="8"/>
       <a name="spacing" val="3"/>
-    </comp>
-    <comp lib="0" loc="(2740,2200)" name="Splitter">
-      <a name="appear" val="right"/>
-      <a name="fanout" val="8"/>
-      <a name="incoming" val="8"/>
     </comp>
     <comp lib="0" loc="(2790,2130)" name="Tunnel">
       <a name="facing" val="east"/>
@@ -1683,23 +1683,23 @@
       <a name="facing" val="east"/>
       <a name="label" val="New_CF"/>
     </comp>
-    <comp lib="0" loc="(3290,760)" name="Tunnel">
+    <comp lib="0" loc="(3290,730)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="New_PF"/>
     </comp>
-    <comp lib="0" loc="(3290,790)" name="Tunnel">
+    <comp lib="0" loc="(3290,760)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="New_VF"/>
     </comp>
-    <comp lib="0" loc="(3290,820)" name="Tunnel">
+    <comp lib="0" loc="(3290,790)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="New_AF"/>
     </comp>
-    <comp lib="0" loc="(3290,880)" name="Tunnel">
+    <comp lib="0" loc="(3290,820)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="New_ZF"/>
     </comp>
-    <comp lib="0" loc="(3290,910)" name="Tunnel">
+    <comp lib="0" loc="(3290,850)" name="Tunnel">
       <a name="facing" val="east"/>
       <a name="label" val="New_SF"/>
     </comp>
@@ -1860,19 +1860,19 @@
     <comp lib="0" loc="(3570,700)" name="Tunnel">
       <a name="label" val="CF"/>
     </comp>
-    <comp lib="0" loc="(3570,760)" name="Tunnel">
+    <comp lib="0" loc="(3570,730)" name="Tunnel">
       <a name="label" val="PF"/>
     </comp>
-    <comp lib="0" loc="(3570,790)" name="Tunnel">
+    <comp lib="0" loc="(3570,760)" name="Tunnel">
       <a name="label" val="VF"/>
     </comp>
-    <comp lib="0" loc="(3570,820)" name="Tunnel">
+    <comp lib="0" loc="(3570,790)" name="Tunnel">
       <a name="label" val="AF"/>
     </comp>
-    <comp lib="0" loc="(3570,880)" name="Tunnel">
+    <comp lib="0" loc="(3570,820)" name="Tunnel">
       <a name="label" val="ZF"/>
     </comp>
-    <comp lib="0" loc="(3570,910)" name="Tunnel">
+    <comp lib="0" loc="(3570,850)" name="Tunnel">
       <a name="label" val="SF"/>
     </comp>
     <comp lib="0" loc="(3580,1050)" name="Tunnel">
@@ -2658,9 +2658,6 @@
     <comp lib="8" loc="(2670,1845)" name="Text">
       <a name="text" val="NOP"/>
     </comp>
-    <comp lib="8" loc="(3420,955)" name="Text">
-      <a name="text" val="In reality, VF is on bit #11"/>
-    </comp>
     <comp lib="8" loc="(3865,1700)" name="Text">
       <a name="text" val="NOT_REG"/>
     </comp>
@@ -2680,7 +2677,7 @@
     <comp loc="(2110,2020)" name="MATH_REG_ARG_INST"/>
     <comp loc="(2110,2290)" name="MOV_REG_IMM_INST"/>
     <comp loc="(2110,2420)" name="MOV_REG_REG_INST"/>
-    <comp loc="(2250,1250)" name="Registers"/>
+    <comp loc="(2250,1250)" name="Register_File"/>
     <wire from="(1000,2040)" to="(1010,2040)"/>
     <wire from="(1000,2060)" to="(1130,2060)"/>
     <wire from="(1050,1310)" to="(1090,1310)"/>
@@ -3503,9 +3500,9 @@
     <wire from="(990,2070)" to="(990,2110)"/>
     <wire from="(990,2390)" to="(1020,2390)"/>
   </circuit>
-  <circuit name="Registers">
+  <circuit name="Register_File">
     <a name="appearance" val="logisim_evolution"/>
-    <a name="circuit" val="Registers"/>
+    <a name="circuit" val="Register_File"/>
     <a name="circuitnamedboxfixedsize" val="true"/>
     <a name="simulationFrequency" val="1.0"/>
     <comp lib="0" loc="(220,180)" name="Pin">
@@ -4773,19 +4770,19 @@
     <comp lib="8" loc="(1370,2350)" name="Text">
       <a name="text" val="B_ALU"/>
     </comp>
-    <comp lib="8" loc="(1686,1728)" name="Text">
+    <comp lib="8" loc="(1685,1725)" name="Text">
       <a name="text" val="CLK9 writes RL to first REG"/>
     </comp>
-    <comp lib="8" loc="(1721,1822)" name="Text">
+    <comp lib="8" loc="(1720,1820)" name="Text">
       <a name="text" val=" but RL must be shifted in that CLK"/>
     </comp>
-    <comp lib="8" loc="(1762,1775)" name="Text">
+    <comp lib="8" loc="(1760,1775)" name="Text">
       <a name="text" val="This shifted bit is shifted back after division"/>
     </comp>
-    <comp lib="8" loc="(1772,1798)" name="Text">
+    <comp lib="8" loc="(1770,1795)" name="Text">
       <a name="text" val="as RH shouldn't be shifted in final looped CLK"/>
     </comp>
-    <comp lib="8" loc="(1871,1751)" name="Text">
+    <comp lib="8" loc="(1870,1750)" name="Text">
       <a name="text" val="CLK10 writes RH to second REG if op is MUL, if DIV, shifts RH to right"/>
     </comp>
     <comp lib="8" loc="(305,2480)" name="Text">

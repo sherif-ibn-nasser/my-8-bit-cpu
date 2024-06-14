@@ -1,0 +1,12 @@
+v3.0 hex words addressed
+00: 00040001 // mov AL, 0x01
+01: 00050100 // mov BL, AL
+02: 011a0200 // inc CL
+03: 011d0001 // shl AL, BL
+04: 01080008 // cmp AL, 0x08
+05: 60020200 // jl 0x02
+06: 000400aa // mov AL, 0xAA
+07: 000401bb // mov BL, 0xBB
+08: 000402cc // mov CL, 0xCC
+09: 000403dd // mov DL, 0xDD
+0a: 00010000 // hlt

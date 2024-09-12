@@ -27,14 +27,13 @@ This image shows the entire layout of the CPU, including the control unit, ALU, 
 
 ## Demo
 
-You can see the CPU in action by watching the demo video
+You can see the CPU in action by watching the [demo](https://www.youtube.com/watch?v=4WbbHC).
 
 The video shows the execution of a sample program written in machine code using the [instruction set](https://github.com/sherif2003/my-8-bit-cpu/blob/main/My%208-bit%20CPU%20Instruction%20Set%20Manual.pdf).
 
-<video width="320" height="240" controls>
-  <source src="assets/demo.mp4" type="video/mp4">
-</video>
+## Scripts
 
+The [scripts](scripts) folder includes Python scripts that show the state of the ALU and RH register (for remainder) during each clock cycle of [`mul`](scripts/mul.py) (multiplication) and [`div`](scripts/div.py) (division) instructions.
 
 ## How to Run
 

@@ -31,4 +31,4 @@ while clk<9:
     R_L_H=R_L_H<<1 | C_out
     
 
-print(f"0x{int(AL%BL):02x}{int(AL/BL):02x}")
+print("Result: ", f"0x{int(AL%BL):02x}{int(AL/BL):02x}")

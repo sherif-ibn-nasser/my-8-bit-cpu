@@ -30,4 +30,4 @@ while clk<9:
     R_L_H=R_L_H>>1 | C_out<<15
     
 
-print(f"0x{AL*BL:04x}")
+print("Result: ", f"0x{AL*BL:04x}")

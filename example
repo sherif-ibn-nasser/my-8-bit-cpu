@@ -1,12 +1,14 @@
 v3.0 hex words addressed
-00: 00040001 // mov AL, 0x01
-01: 00050100 // mov BL, AL
-02: 011a0200 // inc CL
-03: 011d0001 // shl AL, BL
-04: 01080008 // cmp AL, 0x08
-05: 60020200 // jl 0x02
-06: 000400aa // mov AL, 0xAA
-07: 000401bb // mov BL, 0xBB
-08: 000402cc // mov CL, 0xCC
-09: 000403dd // mov DL, 0xDD
-0a: 00010000 // hlt
+// Load the program to the RAM and click RESET
+// The machine code of this assembly program on my CPU
+00: 00040001 => mov AL, 0x01 // Store 1 in AL
+01: 00050100 => mov BL, AL   // Store the value of AL on BL
+02: 011a0200 => inc CL       // Increase CL by 1 (It will jump here later)
+03: 011d0001 => shl AL, BL   // Perfrom AL << BL and store it in AL
+04: 01080008 => cmp AL, 0x08 // Compare AL to 8
+05: 60020200 => jl 0x02      // Jump to line 0x02 if last comparison is < 0
+06: 000400aa => mov AL, 0xAA // Store 0xAA in AL
+07: 000401bb => mov BL, 0xBB // Store 0xBB in BL
+08: 000402cc => mov CL, 0xCC // Store 0xCC in CL
+09: 000403dd => mov DL, 0xDD // Store 0xDD in DL
+0a: 00010000 => hlt          // Halt the CPU

@@ -27,7 +27,7 @@ This image shows the entire layout of the CPU, including the control unit, ALU, 
 
 ## Demo
 
-You can see the CPU in action by watching the [demo](https://www.youtube.com/watch?v=4WbbHC).
+You can see the CPU in action by watching the [demo](https://www.youtube.com/watch?v=4WbbHC1_2LM).
 
 The video shows the execution of a sample program written in machine code using the [instruction set](https://github.com/sherif2003/my-8-bit-cpu/blob/main/My%208-bit%20CPU%20Instruction%20Set%20Manual.pdf).
 

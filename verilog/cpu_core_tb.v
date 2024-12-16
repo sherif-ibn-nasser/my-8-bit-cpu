@@ -76,7 +76,10 @@ module cpu_core_tb;
         reset = 1;
         #5
         reset = 0;
-        #45;
+        #15;
+        end_inst = 0;
+        inst_condition = 0;
+        #60;
 
         $finish;
     end

@@ -82,7 +82,11 @@ module cpu_core #(
                 end
                 IE: begin
                     if (hlt_inst) state <= HLT;
-                    else if (end_inst || !inst_condition) begin
+                    else if (~inst_condition) begin
+                        pc <= pc + 1;
+                        state <= IF;
+                    end
+                    else if (end_inst) begin
                         pc <= (jmp_inst)? jmp_address : pc + 1;
                         state <= IF;
                     end

@@ -2,7 +2,7 @@ module cpu_core #(
     parameter RAM_SIZE = 256  // Number of 32-bit words in RAM
 )(
     input wire [(RAM_SIZE * 32) - 1:0] ram,
-    input wire clk, reset, inst_condition, end_inst, jmp_inst,
+    input wire clk, reset, inst_condition, end_inst, jmp_inst, hlt_inst,
     input wire [7:0] jmp_address,
     output reg [31:0] ir,   // instruction register
     output reg [15:0] clks, // clk counter
@@ -81,7 +81,8 @@ module cpu_core #(
                     ir <= ram_array[pc];
                 end
                 IE: begin
-                    if (end_inst || !inst_condition) begin
+                    if (hlt_inst) state <= HLT;
+                    else if (end_inst || !inst_condition) begin
                         pc <= (jmp_inst)? jmp_address : pc + 1;
                         state <= IF;
                     end

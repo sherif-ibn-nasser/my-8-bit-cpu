@@ -11,9 +11,9 @@ module reg_file_tb;
     // Instantiate the Unit Under Test (UUT)
     reg_file uut(
         .clk(clk),
+        .reset(reset),
         .reg_r(reg_r),
         .reg_w(reg_w),
-        .reset(reset),
         .reg_w_line(reg_w_line),
         .reg_w_select(reg_w_select),
         .reg_r_select(reg_r_select),

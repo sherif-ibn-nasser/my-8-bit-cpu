@@ -1,8 +1,7 @@
 module reg_file (
-    input clk, reg_r, reg_w, reset,
+    input clk, reset, reg_r, reg_w,
     input [7:0] reg_w_line, reg_w_select, reg_r_select,
     output reg [7:0] reg_r_line, al, bl, cl, dl
-
 );
 
     localparam 

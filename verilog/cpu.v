@@ -173,10 +173,45 @@ module cpu #(
                 a_alu = reg_r_line;
                 b_alu = arg2;
                 op_alu = funct;
+                reg_w = 1;
+                reg_w_select = arg1;
+                reg_w_line = c_alu;
                 end_inst = state[0];
             end
             else begin
-                
+                case (funct)
+                    'h8: begin /* CMP REG, IMM */
+                        reg_r = 1;
+                        reg_r_select = arg1;
+                        a_alu = reg_r_line;
+                        b_alu = arg2;
+                        op_alu = alu.OP_SUB;
+                        reg_w = 1;
+                        reg_w_select = arg1;
+                        reg_w_line = c_alu;
+                        end_inst = state[0];
+                    end
+                    'h9: begin /* CMP REG, REG */
+                        
+                    end
+                    'hA: begin /* TEST REG, IMM */
+                        reg_r = 1;
+                        reg_r_select = arg1;
+                        a_alu = reg_r_line;
+                        b_alu = arg2;
+                        op_alu = alu.OP_AND;
+                        reg_w = 1;
+                        reg_w_select = arg1;
+                        reg_w_line = c_alu;
+                        end_inst = state[0];
+                    end
+                    'hB: begin /* TEST REG, REG */
+                        
+                    end
+                    default: begin
+                        
+                    end
+                endcase
             end
         end
         else begin

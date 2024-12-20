@@ -11,6 +11,8 @@
 
 `include "verilog/cpu_core.v"
 `include "verilog/reg_file.v"
+`include "verilog/alu.v"
+
 module cpu #(
     parameter RAM_SIZE = 256  // Number of 32-bit words in RAM
 )(
@@ -84,12 +86,12 @@ module cpu #(
     //     end_inst = main_w_line [44];
     
     wire [7:0] 
-        a_alu = alu_w_line [7:0],
-        b_alu = alu_w_line [15:8],
+        // a_alu = alu_w_line [7:0],
+        // b_alu = alu_w_line [15:8],
         rl_alu_w = alu_w_line [23:16],
         rh_alu_w = alu_w_line [31:24];
 
-    wire [3:0] op_alu = alu_w_line [35:32];
+    // wire [3:0] op_alu = alu_w_line [35:32];
     wire
         load_r_alu = alu_w_line [36],
         shl_r_alu = alu_w_line [37],
@@ -119,6 +121,19 @@ module cpu #(
         .bl(bl),
         .cl(cl),
         .dl(dl)
+    );
+
+
+    reg  [7:0] a_alu, b_alu;
+    reg  [3:0] op_alu;
+    wire [7:0] c_alu, flags_alu;
+
+    alu alu (
+        .a(a_alu),
+        .b(b_alu),
+        .op(op_alu),
+        .c(c_alu),
+        .flags(flags_alu)
     );
 
     always @* begin
@@ -152,35 +167,45 @@ module cpu #(
         endcase
 
         if (super_group_inst) begin
-            // TODO
+            if (sub_group_inst) begin /* math with immediates sub group */
+                reg_r = 1;
+                reg_r_select = arg1;
+                a_alu = reg_r_line;
+                b_alu = arg2;
+                op_alu = funct;
+                end_inst = state[0];
+            end
+            else begin
+                
+            end
         end
         else begin
             case (funct)
-                0: begin /* NOP */
+                'h0: begin /* NOP */
                     end_inst = state[0];
                 end
-                1: begin /* HLT */
+                'h1: begin /* HLT */
                     hlt_inst = state[0];
                 end
-                2: begin /* JMP Label */
+                'h2: begin /* JMP Label */
                     jmp_inst = 1;
                     jmp_address = arg1;
                     end_inst = state[0];
                 end
-                3: begin /* JMP REG */
+                'h3: begin /* JMP REG */
                     jmp_inst = 1;
                     reg_r = 1;
                     reg_r_select = arg1;
                     jmp_address = reg_r_line;
                     end_inst = state[0];
                 end
-                4: begin /* MOV REG, IMM */
+                'h4: begin /* MOV REG, IMM */
                     reg_w = 1;
                     reg_w_select = arg1;
                     reg_w_line = arg2;
                     end_inst = state[0];
                 end
-                5: begin /* MOV REG, REG */
+                'h5: begin /* MOV REG, REG */
                     reg_w = 1;
                     reg_w_select = arg1;
                     reg_r = 1;
@@ -188,10 +213,10 @@ module cpu #(
                     reg_w_line = reg_r_line;
                     end_inst = state[0];
                 end
-                6: begin /* MUL REG, REG */
+                'h6: begin /* MUL REG, REG */
                     // TODO
                 end
-                7: begin /* DIV REG, REG */
+                'h7: begin /* DIV REG, REG */
                     // TODO
                 end
             endcase

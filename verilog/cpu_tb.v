@@ -3,7 +3,7 @@
 
 module cpu_tb;
 
-    localparam RAM_SIZE = 8;
+    localparam RAM_SIZE = 4;
     
     reg [31:0] ram [0:RAM_SIZE-1]; // Memory array for RAM
     reg [(RAM_SIZE * 32) - 1:0] ram_flat;
@@ -46,7 +46,8 @@ module cpu_tb;
                  $time, reset, al, bl, cl, dl);
 
         // Initialize Inputs
-        $readmemh("../verilog/programs/mov_and_jmp.hex", ram);
+        // $readmemh("../verilog/programs/mov_and_jmp.hex", ram);
+        $readmemh("../verilog/programs/math_imm.hex", ram);
 
         for (i = 0; i < RAM_SIZE; i = i + 1) begin
             ram_flat[(i+1)*32-1 -: 32] = ram[i];
@@ -54,8 +55,9 @@ module cpu_tb;
 
         clk = 0;
         reset = 1;
-        #5;
+        #1;
         reset = 0;
+        #4
         #200;
         $finish;
     end

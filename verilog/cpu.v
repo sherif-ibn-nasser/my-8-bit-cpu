@@ -166,96 +166,99 @@ module cpu #(
             default: condition_result = 0;              /* Illegal condition code */
         endcase
 
-        if (super_group_inst) begin
-            if (sub_group_inst) begin /* math with immediates sub group */
-                reg_r = 1;
-                reg_r_select = arg1;
-                a_alu = reg_r_line;
-                b_alu = arg2;
-                op_alu = funct;
-                reg_w = 1;
-                reg_w_select = arg1;
-                reg_w_line = c_alu;
-                end_inst = state[0];
+        if(state == core.IE) begin     
+            if (super_group_inst) begin
+                if (sub_group_inst) begin /* math with immediates sub group */
+                    reg_r = 1;
+                    reg_r_select = arg1;
+                    a_alu = reg_r_line;
+                    b_alu = arg2;
+                    op_alu = funct;
+                    reg_w = 1;
+                    reg_w_select = arg1;
+                    reg_w_line = c_alu;
+                    end_inst = state[0];
+                end
+                else begin
+                    case (funct)
+                        'h8: begin /* CMP REG, IMM */
+                            reg_r = 1;
+                            reg_r_select = arg1;
+                            a_alu = reg_r_line;
+                            b_alu = arg2;
+                            op_alu = alu.OP_SUB;
+                            reg_w = 1;
+                            reg_w_select = arg1;
+                            reg_w_line = c_alu;
+                            end_inst = state[0];
+                        end
+                        'h9: begin /* CMP REG, REG */
+                            
+                        end
+                        'hA: begin /* TEST REG, IMM */
+                            reg_r = 1;
+                            reg_r_select = arg1;
+                            a_alu = reg_r_line;
+                            b_alu = arg2;
+                            op_alu = alu.OP_AND;
+                            reg_w = 1;
+                            reg_w_select = arg1;
+                            reg_w_line = c_alu;
+                            end_inst = state[0];
+                        end
+                        'hB: begin /* TEST REG, REG */
+                            
+                        end
+                        default: begin
+                            
+                        end
+                    endcase
+                end
             end
             else begin
                 case (funct)
-                    'h8: begin /* CMP REG, IMM */
-                        reg_r = 1;
-                        reg_r_select = arg1;
-                        a_alu = reg_r_line;
-                        b_alu = arg2;
-                        op_alu = alu.OP_SUB;
-                        reg_w = 1;
-                        reg_w_select = arg1;
-                        reg_w_line = c_alu;
+                    'h0: begin /* NOP */
                         end_inst = state[0];
                     end
-                    'h9: begin /* CMP REG, REG */
-                        
+                    'h1: begin /* HLT */
+                        hlt_inst = state[0];
                     end
-                    'hA: begin /* TEST REG, IMM */
-                        reg_r = 1;
-                        reg_r_select = arg1;
-                        a_alu = reg_r_line;
-                        b_alu = arg2;
-                        op_alu = alu.OP_AND;
-                        reg_w = 1;
-                        reg_w_select = arg1;
-                        reg_w_line = c_alu;
+                    'h2: begin /* JMP Label */
+                        jmp_inst = 1;
+                        jmp_address = arg1;
                         end_inst = state[0];
                     end
-                    'hB: begin /* TEST REG, REG */
-                        
+                    'h3: begin /* JMP REG */
+                        jmp_inst = 1;
+                        reg_r = 1;
+                        reg_r_select = arg1;
+                        jmp_address = reg_r_line;
+                        end_inst = state[0];
                     end
-                    default: begin
-                        
+                    'h4: begin /* MOV REG, IMM */
+                        reg_w = 1;
+                        reg_w_select = arg1;
+                        reg_w_line = arg2;
+                        end_inst = state[0];
+                    end
+                    'h5: begin /* MOV REG, REG */
+                        reg_w = 1;
+                        reg_w_select = arg1;
+                        reg_r = 1;
+                        reg_r_select = arg2;
+                        reg_w_line = reg_r_line;
+                        end_inst = state[0];
+                    end
+                    'h6: begin /* MUL REG, REG */
+                        // TODO
+                    end
+                    'h7: begin /* DIV REG, REG */
+                        // TODO
                     end
                 endcase
             end
         end
-        else begin
-            case (funct)
-                'h0: begin /* NOP */
-                    end_inst = state[0];
-                end
-                'h1: begin /* HLT */
-                    hlt_inst = state[0];
-                end
-                'h2: begin /* JMP Label */
-                    jmp_inst = 1;
-                    jmp_address = arg1;
-                    end_inst = state[0];
-                end
-                'h3: begin /* JMP REG */
-                    jmp_inst = 1;
-                    reg_r = 1;
-                    reg_r_select = arg1;
-                    jmp_address = reg_r_line;
-                    end_inst = state[0];
-                end
-                'h4: begin /* MOV REG, IMM */
-                    reg_w = 1;
-                    reg_w_select = arg1;
-                    reg_w_line = arg2;
-                    end_inst = state[0];
-                end
-                'h5: begin /* MOV REG, REG */
-                    reg_w = 1;
-                    reg_w_select = arg1;
-                    reg_r = 1;
-                    reg_r_select = arg2;
-                    reg_w_line = reg_r_line;
-                    end_inst = state[0];
-                end
-                'h6: begin /* MUL REG, REG */
-                    // TODO
-                end
-                'h7: begin /* DIV REG, REG */
-                    // TODO
-                end
-            endcase
-        end
+
     end
     
     

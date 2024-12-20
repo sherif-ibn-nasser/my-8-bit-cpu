@@ -1,0 +1,4 @@
+011A0000 // inc AL
+011B0100 // dec BL
+011200FF // or AL, 0xFF
+0110100F // and BL, 0x0F

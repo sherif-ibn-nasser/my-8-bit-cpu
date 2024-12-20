@@ -3,7 +3,7 @@
 
 module cpu_tb;
 
-    localparam RAM_SIZE = 4;
+    localparam RAM_SIZE = 16;
     
     reg [31:0] ram [0:RAM_SIZE-1]; // Memory array for RAM
     reg [(RAM_SIZE * 32) - 1:0] ram_flat;
@@ -58,7 +58,7 @@ module cpu_tb;
         #1;
         reset = 0;
         #4
-        #200;
+        #250;
         $finish;
     end
     

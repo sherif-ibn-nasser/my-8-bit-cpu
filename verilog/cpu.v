@@ -62,7 +62,9 @@ module cpu #(
         reg_w_select,
         reg_w_line,
         mem_select,
-        mem_w_line;
+        mem_w_line,
+        rl,
+        rh;
     
     // wire [7:0] 
     //     reg_r_select = main_w_line [7:0],
@@ -85,11 +87,11 @@ module cpu #(
     //     mem_w = main_w_line [43];
     //     end_inst = main_w_line [44];
     
-    wire [7:0] 
+    // wire [7:0] 
         // a_alu = alu_w_line [7:0],
         // b_alu = alu_w_line [15:8],
-        rl_alu_w = alu_w_line [23:16],
-        rh_alu_w = alu_w_line [31:24];
+        // rl_alu_w = alu_w_line [23:16],
+        // rh_alu_w = alu_w_line [31:24];
 
     // wire [3:0] op_alu = alu_w_line [35:32];
     wire
@@ -187,13 +189,22 @@ module cpu #(
                             a_alu = reg_r_line;
                             b_alu = arg2;
                             op_alu = alu.OP_SUB;
-                            reg_w = 1;
-                            reg_w_select = arg1;
-                            reg_w_line = c_alu;
                             end_inst = state[0];
                         end
                         'h9: begin /* CMP REG, REG */
-                            
+                            if (clks == core.CLK_0) begin
+                                reg_r = 1;
+                                reg_r_select = arg1;
+                                rl <= reg_r_line;
+                            end
+                            else begin
+                                reg_r = 1;
+                                reg_r_select = arg2;
+                                a_alu = rl;
+                                b_alu = reg_r_line;
+                                op_alu = alu.OP_SUB;
+                                end_inst = state[0];
+                            end
                         end
                         'hA: begin /* TEST REG, IMM */
                             reg_r = 1;
@@ -201,16 +212,40 @@ module cpu #(
                             a_alu = reg_r_line;
                             b_alu = arg2;
                             op_alu = alu.OP_AND;
-                            reg_w = 1;
-                            reg_w_select = arg1;
-                            reg_w_line = c_alu;
                             end_inst = state[0];
                         end
                         'hB: begin /* TEST REG, REG */
-                            
+                            if (clks == core.CLK_0) begin
+                                reg_r = 1;
+                                reg_r_select = arg1;
+                                rl <= reg_r_line;
+                            end
+                            else begin
+                                reg_r = 1;
+                                reg_r_select = arg2;
+                                a_alu = rl;
+                                b_alu = reg_r_line;
+                                op_alu = alu.OP_AND;
+                                end_inst = state[0];
+                            end
                         end
                         default: begin
-                            
+                            if (clks == core.CLK_0) begin
+                                reg_r = 1;
+                                reg_r_select = arg1;
+                                rl <= reg_r_line;
+                            end
+                            else begin
+                                reg_r = 1;
+                                reg_r_select = arg2;
+                                a_alu = rl;
+                                b_alu = reg_r_line;
+                                op_alu = funct;
+                                reg_w = 1;
+                                reg_w_select = arg1;
+                                reg_w_line = c_alu;
+                                end_inst = state[0];
+                            end
                         end
                     endcase
                 end

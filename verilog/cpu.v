@@ -20,10 +20,7 @@ module cpu #(
     input clk,
     reset,
     output reg [7:0] flags,
-    output [7:0] al,
-    bl,
-    cl,
-    dl,
+    output [7:0] al, bl, cl, dl,
     output reg [15:0] r_l_h,
     output reg r_l_h_bit,
     output [31:0] ir,
@@ -53,7 +50,7 @@ module cpu #(
 
     reg reg_r, reg_w, mem_r, mem_w, end_inst;
 
-    reg load_r_alu, shl_r_alu, shl_set_r_alu, shr_r_alu;
+    reg shl_r_alu, shr_r_alu;
 
     wire [7:0] reg_r_line;
 
@@ -102,217 +99,212 @@ module cpu #(
 
     always @* begin
 
-    reg_w = 0;
-    reg_r = 0;
-    jmp_inst = 0;
-    end_inst = 0;
-    load_r_alu = 0;
-    shl_r_alu = 0;
-    shl_set_r_alu = 0;
-    shr_r_alu = 0;
+        reg_w = 0;
+        reg_r = 0;
+        jmp_inst = 0;
+        end_inst = 0;
+        shl_r_alu = 0;
+        shr_r_alu = 0;
 
-    case (condition)
-        'h00:    condition_result = 1;                  /* Execute unconditionally */
-        'h08:    condition_result = ZF;                 /* ZF */
-        'h10:    condition_result = ~ZF;                /* Z / E */
-        'h20:    condition_result = SF;                 /* S */
-        'h30:    condition_result = ~SF;                /* NS */
-        'h40:    condition_result = ~(ZF | (SF ^ VF));  /* G / NLE */
-        'h50:    condition_result = ~(SF ^ VF);         /* GE / NL */
-        'h60:    condition_result = SF ^ VF;            /* L / NGE */
-        'h70:    condition_result = ZF | (SF ^ VF);     /* LE / NG */
-        'h80:    condition_result = ~(ZF | CF);         /* A / NBE */
-        'h90:    condition_result = ~CF;                /* NC / AE / NB */
-        'hA0:    condition_result = CF;                 /* C / B / NAE */
-        'hB0:    condition_result = ZF | CF;            /* BE / NA */
-        'hC0:    condition_result = VF;                 /* V */
-        'hD0:    condition_result = ~VF;                /* NV */
-        'hE0:    condition_result = PF;                 /* P */
-        'hF0:    condition_result = ~PF;                /* NP */
-        'hE1:    condition_result = AF;                 /* HC */
-        'hF1:    condition_result = ~AF;                /* NHC */
-        default: condition_result = 0;                  /* Illegal condition code */
-    endcase
+        case (condition)
+            'h00:    condition_result = 1;                  /* Execute unconditionally */
+            'h08:    condition_result = ZF;                 /* ZF */
+            'h10:    condition_result = ~ZF;                /* Z / E */
+            'h20:    condition_result = SF;                 /* S */
+            'h30:    condition_result = ~SF;                /* NS */
+            'h40:    condition_result = ~(ZF | (SF ^ VF));  /* G / NLE */
+            'h50:    condition_result = ~(SF ^ VF);         /* GE / NL */
+            'h60:    condition_result = SF ^ VF;            /* L / NGE */
+            'h70:    condition_result = ZF | (SF ^ VF);     /* LE / NG */
+            'h80:    condition_result = ~(ZF | CF);         /* A / NBE */
+            'h90:    condition_result = ~CF;                /* NC / AE / NB */
+            'hA0:    condition_result = CF;                 /* C / B / NAE */
+            'hB0:    condition_result = ZF | CF;            /* BE / NA */
+            'hC0:    condition_result = VF;                 /* V */
+            'hD0:    condition_result = ~VF;                /* NV */
+            'hE0:    condition_result = PF;                 /* P */
+            'hF0:    condition_result = ~PF;                /* NP */
+            'hE1:    condition_result = AF;                 /* HC */
+            'hF1:    condition_result = ~AF;                /* NHC */
+            default: condition_result = 0;                  /* Illegal condition code */
+        endcase
 
-    if (state == core.IE) begin
-        if (super_group_inst) begin
-        if (sub_group_inst) begin  /* math with immediates sub group */
-            reg_r = 1;
-            reg_r_select = arg1;
-            a_alu = reg_r_line;
-            b_alu = arg2;
-            op_alu = funct;
-            reg_w = 1;
-            reg_w_select = arg1;
-            reg_w_line = c_alu;
-            end_inst = state[0];
-        end else begin
-            case (funct)
-            'h8: begin  /* CMP REG, IMM */
-                reg_r = 1;
-                reg_r_select = arg1;
-                a_alu = reg_r_line;
-                b_alu = arg2;
-                op_alu = alu.OP_SUB;
-                end_inst = state[0];
-            end
-            'h9: begin  /* CMP REG, REG */
-                if (clks == core.CLK_0) begin
-                reg_r = 1;
-                reg_r_select = arg1;
-                r_l_h[7:0] <= reg_r_line;
+        if (state == core.IE) begin
+            if (super_group_inst) begin
+                if (sub_group_inst) begin  /* math with immediates sub group */
+                    reg_r = 1;
+                    reg_r_select = arg1;
+                    a_alu = reg_r_line;
+                    b_alu = arg2;
+                    op_alu = funct;
+                    reg_w = 1;
+                    reg_w_select = arg1;
+                    reg_w_line = c_alu;
+                    end_inst = 1;
                 end else begin
-                reg_r = 1;
-                reg_r_select = arg2;
-                a_alu = r_l_h[7:0];
-                b_alu = reg_r_line;
-                op_alu = alu.OP_SUB;
-                end_inst = state[0];
-                end
-            end
-            'hA: begin  /* TEST REG, IMM */
-                reg_r = 1;
-                reg_r_select = arg1;
-                a_alu = reg_r_line;
-                b_alu = arg2;
-                op_alu = alu.OP_AND;
-                end_inst = state[0];
-            end
-            'hB: begin  /* TEST REG, REG */
-                if (clks == core.CLK_0) begin
-                reg_r = 1;
-                reg_r_select = arg1;
-                r_l_h[7:0] <= reg_r_line;
-                end else begin
-                reg_r = 1;
-                reg_r_select = arg2;
-                a_alu = r_l_h[7:0];
-                b_alu = reg_r_line;
-                op_alu = alu.OP_AND;
-                end_inst = state[0];
-                end
-            end
-            default: begin
-                if (clks == core.CLK_0) begin
-                reg_r = 1;
-                reg_r_select = arg1;
-                r_l_h[7:0] <= reg_r_line;
-                end else begin
-                reg_r = 1;
-                reg_r_select = arg2;
-                a_alu = r_l_h[7:0];
-                b_alu = reg_r_line;
-                op_alu = funct;
-                reg_w = 1;
-                reg_w_select = arg1;
-                reg_w_line = c_alu;
-                end_inst = state[0];
-                end
-            end
-            endcase
-        end
-        end else begin
-        case (funct)
-            'h0: begin  /* NOP */
-                end_inst = state[0];
-            end
-            'h1: begin  /* HLT */
-                hlt_inst = state[0];
-            end
-            'h2: begin  /* JMP Label */
-                jmp_inst = 1;
-                jmp_address = arg1;
-                end_inst = state[0];
-            end
-            'h3: begin  /* JMP REG */
-                jmp_inst = 1;
-                reg_r = 1;
-                reg_r_select = arg1;
-                jmp_address = reg_r_line;
-                end_inst = state[0];
-            end
-            'h4: begin  /* MOV REG, IMM */
-                reg_w = 1;
-                reg_w_select = arg1;
-                reg_w_line = arg2;
-                end_inst = state[0];
-            end
-            'h5: begin  /* MOV REG, REG */
-                reg_w = 1;
-                reg_w_select = arg1;
-                reg_r = 1;
-                reg_r_select = arg2;
-                reg_w_line = reg_r_line;
-                end_inst = state[0];
-            end
-            'h6: begin  /* MUL REG, REG */
-                case (clks)
-                    core.CLK_0: begin
-                        // Load the multiplier into RL and zeroize RH
-                        reg_r = 1;
-                        reg_r_select = arg2;
-                        r_l_h_bit = reg_r_line[0];
-                        r_l_h = reg_r_line >> 1;
-                    end
-                    core.CLK_9: begin
-                        reg_w = 1;
-                        reg_w_select = arg1;
-                        reg_w_line = r_l_h[7:0];
-                    end
-                    core.CLK_A: begin
-                        reg_w = 1;
-                        reg_w_select = arg2;
-                        reg_w_line = r_l_h[15:8];
-                    end
-                    core.CLK_B: begin
-                        end_inst = state[0];
-                    end
-                    default: begin
+                    case (funct)
+                    'h8: begin  /* CMP REG, IMM */
                         reg_r = 1;
                         reg_r_select = arg1;
                         a_alu = reg_r_line;
-                        b_alu = r_l_h[15:8];
-                        op_alu = alu.OP_ADD;
-                        shr_r_alu = 1;
+                        b_alu = arg2;
+                        op_alu = alu.OP_SUB;
+                        end_inst = 1;
                     end
-                endcase
-            end
-            'h7: begin  /* DIV REG, REG */
-                case (clks)
-                    core.CLK_0: begin
-                        // Load the dividend into RL and zeroize RH
+                    'h9: begin  /* CMP REG, REG */
+                        if (clks == core.CLK_0) begin
+                            reg_r = 1;
+                            reg_r_select = arg1;
+                            r_l_h[7:0] <= reg_r_line;
+                        end else begin
+                            reg_r = 1;
+                            reg_r_select = arg2;
+                            a_alu = r_l_h[7:0];
+                            b_alu = reg_r_line;
+                            op_alu = alu.OP_SUB;
+                            end_inst = 1;
+                        end
+                    end
+                    'hA: begin  /* TEST REG, IMM */
                         reg_r = 1;
                         reg_r_select = arg1;
-                        r_l_h = reg_r_line << 1;
-                        r_l_h_bit = reg_r_line[15];
+                        a_alu = reg_r_line;
+                        b_alu = arg2;
+                        op_alu = alu.OP_AND;
+                        end_inst = 1;
                     end
-                    core.CLK_9: begin
-                        reg_w = 1;
-                        reg_w_select = arg1;
-                        reg_w_line = r_l_h[7:0];
-                    end
-                    core.CLK_A: begin
-                        reg_w = 1;
-                        reg_w_select = arg2;
-                        reg_w_line = {r_l_h_bit, r_l_h[15:9]};
-                    end
-                    core.CLK_B: begin
-                        end_inst = state[0];
+                    'hB: begin  /* TEST REG, REG */
+                        if (clks == core.CLK_0) begin
+                            reg_r = 1;
+                            reg_r_select = arg1;
+                            r_l_h[7:0] <= reg_r_line;
+                        end else begin
+                            reg_r = 1;
+                            reg_r_select = arg2;
+                            a_alu = r_l_h[7:0];
+                            b_alu = reg_r_line;
+                            op_alu = alu.OP_AND;
+                            end_inst = 1;
+                        end
                     end
                     default: begin
-                        a_alu = r_l_h[15:8];
+                        if (clks == core.CLK_0) begin
+                            reg_r = 1;
+                            reg_r_select = arg1;
+                            r_l_h[7:0] = reg_r_line;
+                        end else begin
+                            reg_r = 1;
+                            reg_r_select = arg2;
+                            a_alu = r_l_h[7:0];
+                            b_alu = reg_r_line;
+                            op_alu = funct;
+                            reg_w = 1;
+                            reg_w_select = arg1;
+                            reg_w_line = c_alu;
+                            end_inst = 1;
+                        end
+                    end
+                    endcase
+                end
+            end else begin
+                case (funct)
+                    'h0: begin  /* NOP */
+                        end_inst = 1;
+                    end
+                    'h1: begin  /* HLT */
+                        hlt_inst = 1;
+                    end
+                    'h2: begin  /* JMP Label */
+                        jmp_inst = 1;
+                        jmp_address = arg1;
+                        end_inst = 1;
+                    end
+                    'h3: begin  /* JMP REG */
+                        jmp_inst = 1;
+                        reg_r = 1;
+                        reg_r_select = arg1;
+                        jmp_address = reg_r_line;
+                        end_inst = 1;
+                    end
+                    'h4: begin  /* MOV REG, IMM */
+                        reg_w = 1;
+                        reg_w_select = arg1;
+                        reg_w_line = arg2;
+                        end_inst = 1;
+                    end
+                    'h5: begin  /* MOV REG, REG */
+                        reg_w = 1;
+                        reg_w_select = arg1;
                         reg_r = 1;
                         reg_r_select = arg2;
-                        b_alu = reg_r_line;
-                        op_alu = alu.OP_SUB;
-                        shl_r_alu = 1;
+                        reg_w_line = reg_r_line;
+                        end_inst = 1;
+                    end
+                    'h6: begin  /* MUL REG, REG */
+                        case (clks)
+                            core.CLK_0: begin
+                                // Load the multiplier into RL and zeroize RH
+                                reg_r = 1;
+                                reg_r_select = arg2;
+                                {r_l_h, r_l_h_bit} = {1'b0, reg_r_line};
+                            end
+                            core.CLK_9: begin
+                                reg_w = 1;
+                                reg_w_select = arg1;
+                                reg_w_line = r_l_h[7:0];
+                            end
+                            core.CLK_A: begin
+                                reg_w = 1;
+                                reg_w_select = arg2;
+                                reg_w_line = r_l_h[15:8];
+                            end
+                            core.CLK_B: begin
+                                end_inst = 1;
+                            end
+                            default: begin
+                                reg_r = 1;
+                                reg_r_select = arg1;
+                                a_alu = reg_r_line;
+                                b_alu = r_l_h[15:8];
+                                op_alu = alu.OP_ADD;
+                                shr_r_alu = 1;
+                            end
+                        endcase
+                    end
+                    'h7: begin  /* DIV REG, REG */
+                        case (clks)
+                            core.CLK_0: begin
+                                // Load the dividend into RL and zeroize RH
+                                reg_r = 1;
+                                reg_r_select = arg1;
+                                {r_l_h_bit, r_l_h} = {reg_r_line, 1'b0};
+                            end
+                            core.CLK_9: begin
+                                reg_w = 1;
+                                reg_w_select = arg1;
+                                reg_w_line = r_l_h[7:0];
+                            end
+                            core.CLK_A: begin
+                                reg_w = 1;
+                                reg_w_select = arg2;
+                                reg_w_line = {r_l_h_bit, r_l_h[15:9]};
+                            end
+                            core.CLK_B: begin
+                                end_inst = 1;
+                            end
+                            default: begin
+                                a_alu = r_l_h[15:8];
+                                reg_r = 1;
+                                reg_r_select = arg2;
+                                b_alu = reg_r_line;
+                                op_alu = alu.OP_SUB;
+                                shl_r_alu = 1;
+                            end
+                        endcase
                     end
                 endcase
             end
-        endcase
         end
-    end
-
     end
 
     always @(posedge clk) begin

@@ -1,7 +1,7 @@
-`include "verilog/alu.v"
+`include "alu.v"
 module tb_alu;
 
-    reg  [7:0] a, b;
+    reg  [7:0] a, b, cpu_flags;
     reg  [3:0] op;
     wire [7:0] c;
     wire [7:0] flags;
@@ -9,6 +9,7 @@ module tb_alu;
     alu uut (
         .a(a),
         .b(b),
+        .cpu_flags(cpu_flags),
         .op(op),
         .c(c),
         .flags(flags)
@@ -35,6 +36,7 @@ module tb_alu;
         a = 8'b11001010; b = 8'h2; op = uut.OP_SAR;    #10;
         a = 8'b00101111; b = 8'b00000000; op = uut.OP_MIRROR; #10;
         $display("Bin: 01100000 : %b", ~(^8'b01100000));
+        $display("SAR : %b", 4'b1010 >>> 1);
         
         $finish;
     end

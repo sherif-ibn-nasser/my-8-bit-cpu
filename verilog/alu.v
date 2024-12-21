@@ -1,5 +1,5 @@
 module alu (
-    input wire [7:0] a, b,
+    input wire [7:0] a, b, cpu_flags,
     input wire [3:0] op,
     output reg [7:0] c,
     output reg [7:0] flags
@@ -24,91 +24,105 @@ module alu (
         OP_MIRROR    = 4'b1111;
 
     // Local flag wires
-    reg overflow, parity, sign, zero, aux_carry, carry;
+    reg VF, PF, SF, ZF, AF, CF;
     reg [3:0] t0;
     reg [7:0] t1;
 
+    wire
+        CPU_VF = cpu_flags[5],
+        CPU_PF = cpu_flags[4],
+        CPU_SF = cpu_flags[3],
+        CPU_ZF = cpu_flags[2],
+        CPU_AF = cpu_flags[1],
+        CPU_CF = cpu_flags[0];
+
     always @* begin
+        VF = CPU_VF;
+        PF = CPU_PF;
+        SF = CPU_SF;
+        ZF = CPU_ZF;
+        AF = CPU_AF;
+        CF = CPU_CF;
         case (op)
             OP_AND:    begin
-                c = a & b; 
-                carry = 0;
-                overflow = 0;
+                c = a & b;
+                CF = 0;
+                VF = 0;
             end
             OP_NAND:   begin
                 c = ~(a & b);
-                carry = 0;
-                overflow = 0;
+                CF = 0;
+                VF = 0;
             end
             OP_OR:     begin
                 c = a | b;
-                carry = 0;
-                overflow = 0;
+                CF = 0;
+                VF = 0;
             end
             OP_NOR:    begin
                 c = ~(a | b);
-                carry = 0;
-                overflow = 0;
+                CF = 0;
+                VF = 0;
             end
             OP_XOR:    begin
                 c = a ^ b;
-                carry = 0;
-                overflow = 0;
+                CF = 0;
+                VF = 0;
             end
             OP_XNOR:   begin
                 c = ~(a ^ b);
-                carry = 0;
-                overflow = 0;
+                CF = 0;
+                VF = 0;
             end
             OP_ADD:    begin
-                {carry, c} = a + b;
-                {aux_carry, t0} = a[3:0] + b[3:0];
-                overflow = (a[7]==b[7]) && (a[7]!=c[7]);
+                {CF, c} = a + b;
+                {AF, t0} = a[3:0] + b[3:0];
+                VF = (a[7]==b[7]) && (a[7]!=c[7]);
             end
             OP_SUB:    begin
                 c = a - b; // Perform subtraction
-                carry = (a < b); // Set carry to indicate a borrow
-                aux_carry = (a[3:0] < b[3:0]); // Auxiliary carry for the lower nibble
-                overflow = (a[7] != b[7]) && (a[7] != c[7]);
+                CF = (a < b); // Set CF to indicate a borrow
+                AF = (a[3:0] < b[3:0]); // Auxiliary CF for the lower nibble
+                VF = (a[7] != b[7]) && (a[7] != c[7]);
             end
-            OP_NOT:    c = ~a;
+            OP_NOT: c = ~a;
             OP_NEG:    begin
-                {carry, c} = 0 - a;
-                {aux_carry, t0} = 0 - a[3:0];
-                overflow = (a[7]!=b[7]) && (a[7]!=c[7]);
+                CF = -a;
+                CF = a != 0;
+                {AF, t0} = -a[3:0];
+                VF = (a[7]!=b[7]) && (a[7]!=c[7]);
             end
             OP_INC:    begin
-                {carry, c} = a + 1;
-                {aux_carry, t0} = a[3:0] + 1;
-                overflow = (a[7]!=b[7]) && (a[7]!=c[7]);
+                c = a + 1;
+                {AF, t0} = a[3:0] + 1;
+                VF = (a[7]!=b[7]) && (a[7]!=c[7]);
             end
             OP_DEC:   begin
-                {carry, c} = a - 1;
-                {aux_carry, t0} = a[3:0] - 1;
-                overflow = (a[7]!=b[7]) && (a[7]!=c[7]);
+                c = a - 1;
+                {AF, t0} = a[3:0] - 1;
+                VF = (a[7]!=b[7]) && (a[7]!=c[7]);
             end
             OP_SHR:    begin
-                c = a >> b;
                 t1 = a >> (b-1);
-                carry = t1[0];
+                {c, CF} = {1'b0, t1};
             end
             OP_SHL:    begin
                 t1 = a << (b-1);
-                carry = t1[0];
-                c = a << 1;
+                {CF, c} = {t1, 1'b0};
             end
             OP_SAR:    begin
                 t1 = a >>> (b-1);
-                carry = t1[0];
-                c = t1 >>> 1;
+                {c, CF} = {t1[7], t1};
             end
             OP_MIRROR: c = {a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]}; // Mirror bits
         endcase
 
-        zero = (c == 8'b0);
-        sign = c[7];
-        parity = ~^c;                   // Parity flag (1 for even parity, 0 for odd parity)
+        if (op != OP_NOT && op != OP_MIRROR) begin
+            ZF = (c == 8'b0);
+            SF = c[7];
+            PF = ~^c;                   // Parity flag (1 for even parity, 0 for odd parity)
+        end
 
-        flags = {2'b0, overflow, parity, sign, zero, aux_carry, carry};
+        flags = {2'b0, VF, PF, SF, ZF, AF, CF};
     end
 endmodule

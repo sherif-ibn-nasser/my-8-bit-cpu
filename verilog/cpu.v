@@ -268,17 +268,46 @@ module cpu #(
                         end_inst = state[0];
                     end
                     default: begin
-                        a_alu = r_l_h[15:8];
                         reg_r = 1;
                         reg_r_select = arg1;
-                        b_alu = reg_r_line;
+                        a_alu = reg_r_line;
+                        b_alu = r_l_h[15:8];
                         op_alu = alu.OP_ADD;
                         shr_r_alu = 1;
                     end
                 endcase
             end
             'h7: begin  /* DIV REG, REG */
-            // TODO
+                case (clks)
+                    core.CLK_0: begin
+                        // Load the dividend into RL and zeroize RH
+                        reg_r = 1;
+                        reg_r_select = arg1;
+                        r_l_h = reg_r_line << 1;
+                        r_l_h_bit = reg_r_line[15];
+                    end
+                    core.CLK_9: begin
+                        reg_w = 1;
+                        reg_w_select = arg1;
+                        reg_w_line = r_l_h[7:0];
+                    end
+                    core.CLK_A: begin
+                        reg_w = 1;
+                        reg_w_select = arg2;
+                        reg_w_line = {r_l_h_bit, r_l_h[15:9]};
+                    end
+                    core.CLK_B: begin
+                        end_inst = state[0];
+                    end
+                    default: begin
+                        a_alu = r_l_h[15:8];
+                        reg_r = 1;
+                        reg_r_select = arg2;
+                        b_alu = reg_r_line;
+                        op_alu = alu.OP_SUB;
+                        shl_r_alu = 1;
+                    end
+                endcase
             end
         endcase
         end
@@ -287,14 +316,13 @@ module cpu #(
     end
 
     always @(posedge clk) begin
-    if (shr_r_alu) begin
-        if (r_l_h_bit) begin
-        r_l_h_bit = r_l_h[0];
-        r_l_h = {alu.carry, c_alu, r_l_h[7:1]};  // Update the upper 8 bits with c_alu
-        end else begin
-        r_l_h_bit = r_l_h[0];
-        r_l_h = {1'b0, r_l_h[15:1]};  // Shift right with a 0 in the MSB
+        if (shr_r_alu) begin
+            if (r_l_h_bit) {r_l_h, r_l_h_bit} = {alu.carry, c_alu, r_l_h[7:0]};
+            else {r_l_h, r_l_h_bit} = {1'b0, r_l_h};
         end
-    end
+        if (shl_r_alu) begin
+            if (alu.sign) {r_l_h_bit, r_l_h} = {r_l_h, 1'b0};
+            else {r_l_h_bit, r_l_h} = {c_alu, r_l_h[7:0], 1'b1};
+        end
     end
 endmodule

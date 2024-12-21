@@ -50,7 +50,8 @@ module cpu_tb;
         // Initialize Inputs
         // $readmemh("../programs/mov_jmp.hex", ram);
         // $readmemh("../programs/math_imm.hex", ram);
-        $readmemh("../programs/mul_div.hex", ram);
+        // $readmemh("../programs/mul.hex", ram);
+        $readmemh("../programs/div.hex", ram);
 
         for (i = 0; i < RAM_SIZE; i = i + 1)
         begin

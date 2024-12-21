@@ -9,9 +9,9 @@
 // |||| |^^^ Supergroup of instructions
 // ^^^^_^ Execution condition
 
-`include "verilog/cpu_core.v"
-`include "verilog/reg_file.v"
-`include "verilog/alu.v"
+`include "cpu_core.v"
+`include "reg_file.v"
+`include "alu.v"
 
 module cpu #(
     parameter RAM_SIZE = 256  // Number of 32-bit words in RAM
@@ -28,16 +28,12 @@ module cpu #(
     output [1:0] state
   );
 
-  reg [44:0] main_w_line;
-  reg [39:0] alu_w_line;
-
   reg
     condition_result, // If set, the instruction will be executed, otherwise it will be skipped
     jmp_inst,
     hlt_inst;
 
   reg [7:0] jmp_address;
-
 
   wire [4:0] condition = ir[31:27];
 
@@ -365,7 +361,7 @@ module cpu #(
       if (r_l_h_bit)
       begin
         r_l_h_bit = r_l_h[0];
-        r_l_h = {c_alu, r_l_h[7:1]}; // Update the upper 8 bits with c_alu
+        r_l_h = {alu.carry, c_alu, r_l_h[7:1]}; // Update the upper 8 bits with c_alu
       end
       else
       begin

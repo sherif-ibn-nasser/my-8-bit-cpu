@@ -1,5 +1,5 @@
 `timescale 1ns/1ns
-`include "verilog/cpu.v"
+`include "cpu.v"
 
 module cpu_tb;
 
@@ -48,9 +48,9 @@ module cpu_tb;
              $time, reset, al, bl, cl, dl, r_l_h);
 
     // Initialize Inputs
-    // $readmemh("../verilog/programs/mov_and_jmp.hex", ram);
-    // $readmemh("../verilog/programs/math_imm.hex", ram);
-    $readmemh("../verilog/programs/mul_div.hex", ram);
+    // $readmemh("../programs/mov_jmp.hex", ram);
+    // $readmemh("../programs/math_imm.hex", ram);
+    $readmemh("../programs/mul_div.hex", ram);
 
     for (i = 0; i < RAM_SIZE; i = i + 1)
     begin
@@ -62,7 +62,7 @@ module cpu_tb;
     #1;
     reset = 0;
     #4
-     #250;
+    #250;
     $finish;
   end
 

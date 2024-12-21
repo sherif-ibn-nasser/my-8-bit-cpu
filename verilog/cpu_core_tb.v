@@ -1,5 +1,5 @@
 `timescale 1ns/1ns
-`include "verilog/cpu_core.v"
+`include "cpu_core.v"
 
 module cpu_core_tb;
     

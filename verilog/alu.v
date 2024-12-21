@@ -24,24 +24,24 @@ module alu (
         OP_MIRROR    = 4'b1111;
 
     // Local flag wires
-    reg VF, PF, SF, ZF, AF, CF;
+    reg SF, ZF, AF, VF, PF, CF;
     reg [3:0] t0;
     reg [7:0] t1;
 
     wire
-        CPU_VF = cpu_flags[5],
-        CPU_PF = cpu_flags[4],
-        CPU_SF = cpu_flags[3],
-        CPU_ZF = cpu_flags[2],
-        CPU_AF = cpu_flags[1],
+        CPU_SF = cpu_flags[5],
+        CPU_ZF = cpu_flags[4],
+        CPU_AF = cpu_flags[3],
+        CPU_VF = cpu_flags[2],
+        CPU_PF = cpu_flags[1],
         CPU_CF = cpu_flags[0];
 
     always @* begin
-        VF = CPU_VF;
-        PF = CPU_PF;
         SF = CPU_SF;
         ZF = CPU_ZF;
         AF = CPU_AF;
+        VF = CPU_VF;
+        PF = CPU_PF;
         CF = CPU_CF;
         case (op)
             OP_AND:    begin
@@ -123,6 +123,6 @@ module alu (
             PF = ~^c;                   // Parity flag (1 for even parity, 0 for odd parity)
         end
 
-        flags = {2'b0, VF, PF, SF, ZF, AF, CF};
+        flags = {2'b0, SF, ZF, AF, VF, PF, CF};
     end
 endmodule

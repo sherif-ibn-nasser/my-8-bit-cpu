@@ -43,7 +43,7 @@ module cpu #(
 
     wire [7:0] arg1 = ir[15:8], arg2 = ir[7:0];
 
-    wire VF = flags[5], PF = flags[4], SF = flags[3], ZF = flags[2], AF = flags[1], CF = flags[0];
+    wire SF = flags[5], ZF = flags[4], AF = flags[3], VF = flags[2], PF = flags[1], CF = flags[0];
 
     reg [7:0] reg_r_select, reg_w_select, reg_w_line, mem_select, mem_w_line;
 

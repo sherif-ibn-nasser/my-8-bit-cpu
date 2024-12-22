@@ -1,0 +1,9 @@
+0116000A // add AL, 0x0A
+01060100 // add BL, AL
+011A0000 // inc AL
+011B0100 // dec BL
+011200FF // or AL, 0x0F
+0111010F // nand BL, 0x0F
+01020201 // or CL, BL
+00050300 // mov DL, AL
+01040301 // xor DL, BL

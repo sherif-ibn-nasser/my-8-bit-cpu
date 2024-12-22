@@ -1,0 +1,7 @@
+000400AA // mov AL, 0xAA
+000401BB // mov BL, 0xBB
+00050200 // mov CL, AL
+00050301 // mov DL, BL
+00040002 // mov AL, 0x02
+000401DD // mov BL, 0xDD
+00030000 // jmp AL

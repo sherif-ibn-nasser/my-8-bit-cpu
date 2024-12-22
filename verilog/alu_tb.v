@@ -36,7 +36,7 @@ module tb_alu;
         a = 8'b11001010; b = 8'h2; op = uut.OP_SAR;    #10;
         a = 8'b00101111; b = 8'b00000000; op = uut.OP_MIRROR; #10;
         $display("Bin: 01100000 : %b", ~(^8'b01100000));
-        $display("SAR : %b", 4'b1010 >>> 1);
+        $display("SAR : %b", $signed(4'b1010) >>> 1);
         
         $finish;
     end

@@ -111,7 +111,7 @@ module alu (
                 {CF, c} = {t1, 1'b0};
             end
             OP_SAR:    begin
-                t1 = a >>> (b-1);
+                t1 = $signed(a) >>> (b-1);
                 {c, CF} = {t1[7], t1};
             end
             OP_MIRROR: c = {a[0], a[1], a[2], a[3], a[4], a[5], a[6], a[7]}; // Mirror bits

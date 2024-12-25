@@ -118,13 +118,31 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
     var bytecode: u32 = 0;
 
     switch (en) {
+        .hlt => {
+            bytecode = 0x01 << @intCast(2 * 8);
+        },
+        .jmp => {
+            const arg = iter.next() orelse {
+                std.debug.panic("Expected arg after JMP", .{});
+            };
+
+            const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
+
+            if (arg_mapped_to_reg == null) {
+                bytecode |= 0x02 << @intCast(2 * 8) | @as(u32, map_to_num(arg)) << 8;
+            } else {
+                bytecode |= 0x03 << @intCast(2 * 8) | @intFromEnum(arg_mapped_to_reg.?);
+            }
+
+            // TODO: support labels
+        },
         .mov => {
             const reg = iter.next() orelse {
-                std.debug.panic("Expected arg after MOV", .{});
+                std.debug.panic("Expected reg after MOV", .{});
             };
 
             const arg = iter.next() orelse {
-                std.debug.panic("Expected arg after MOV", .{});
+                std.debug.panic("Expected 2nd arg after MOV", .{});
             };
 
             const reg_mapped = map_to_reg(reg);
@@ -137,10 +155,31 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
                 bytecode |= 0x05 << @intCast(2 * 8) | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
             }
         },
-        .jmp => {
-            if (iter.next()) |inst2| {
-                std.debug.print("..JMP {s}", .{inst2});
-            }
+        .mul => {
+            const reg1 = iter.next() orelse {
+                std.debug.panic("Expected 1st reg for MUL", .{});
+            };
+            const reg2 = iter.next() orelse {
+                std.debug.panic("Expected 2nd reg for MUL", .{});
+            };
+
+            const reg1_mapped = map_to_reg(reg1);
+            const reg2_mapped = map_to_reg(reg2);
+
+            bytecode |= 0x06 << @intCast(2 * 8) | reg1_mapped << 8 | reg2_mapped;
+        },
+        .div => {
+            const reg1 = iter.next() orelse {
+                std.debug.panic("Expected 1st reg for DIV", .{});
+            };
+            const reg2 = iter.next() orelse {
+                std.debug.panic("Expected 2nd reg for DIV", .{});
+            };
+
+            const reg1_mapped = map_to_reg(reg1);
+            const reg2_mapped = map_to_reg(reg2);
+
+            bytecode |= 0x07 << @intCast(2 * 8) | reg1_mapped << 8 | reg2_mapped;
         },
         else => {
             std.debug.print("ELse {s}", .{inst});

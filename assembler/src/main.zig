@@ -284,28 +284,7 @@ pub fn map(
     }
 
     const en = std.meta.stringToEnum(Instruction, mut_inst) orelse {
-        const num = std.fmt.parseUnsigned(i8, mut_inst, 0) catch {
-            return 5;
-        };
-
-        std.debug.print("Num: {d}", .{num});
-        // switch (num) {
-        //     .int => {
-        //         if (num.int > 0xFF) {
-        //             std.debug.panic("Numbers should be between 0 and 0xFF", .{});
-        //         }
-        //         std.debug.print("Int: {X:0>2}", .{num.int});
-        //     },
-        //     .failure => {
-        //         std.debug.print("Fail", .{});
-        //     },
-        //     else => {
-        //         const x: u8 = 0xff;
-
-        //         std.debug.print("Else int: {d}", .{x});
-        //     },
-        // }
-        return 5;
+        std.debug.panic("Invalid instruction `{s}`", .{mut_inst});
     };
 
     switch (en) {

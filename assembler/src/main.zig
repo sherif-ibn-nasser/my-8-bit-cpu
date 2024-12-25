@@ -1,19 +1,64 @@
 const std = @import("std");
 
 const Instruction = enum {
-    nop,
-    hlt,
-    jmp,
-    mov,
-    mul,
-    div,
+    NOP,
+    HLT,
+    JMP,
+    MOV,
+    MUL,
+    DIV,
+    CMP,
+    TEST,
+    AND,
+    ANDN,
+    OR,
+    NOR,
+    XOR,
+    XNOR,
+    ADD,
+    SUB,
+    NOT,
+    NEG,
+    INC,
+    DEC,
+    SHR,
+    SHL,
+    SAR,
+    MIRROR,
+
+    const Self = @This();
+
+    pub fn get_op_code(self: Self) u32 {
+        return switch (self) {
+            .MOV => 4,
+            .CMP => 8,
+            .TEST => 10,
+            .AND => 0,
+            .ANDN => 1,
+            .OR => 2,
+            .NOR => 3,
+            .XOR => 4,
+            .XNOR => 5,
+            .ADD => 6,
+            .SUB => 7,
+            .NOT => 8,
+            .NEG => 9,
+            .INC => 10,
+            .DEC => 11,
+            .SHR => 12,
+            .SHL => 13,
+            .SAR => 14,
+            .MIRROR => 15,
+            else => 0,
+        };
+    }
 };
 
 const Reg = enum(u32) {
-    al = 0,
-    bl = 1,
-    cl = 2,
-    dl = 3,
+    AL = 0,
+    BL = 1,
+    CL = 2,
+    DL = 3,
 };
 
 pub fn main() !void {
@@ -72,8 +117,8 @@ const InstIter = struct {
         } else {
             // Allocate memory for the new string
             var output: []u8 = self.allocator.alloc(u8, next_inst.len) catch return null;
-            // Convert `next_inst` to lowercase and copy it to `output`
-            _ = std.ascii.lowerString(output, next_inst);
+            // Convert `next_inst` to uppercase and copy it to `output`
+            _ = std.ascii.upperString(output, next_inst);
             // Add the allocation to the list for later cleanup
             _ = self.allocated_strings.append(output) catch return null;
             // Return the immutable version of `output`
@@ -118,10 +163,10 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
     var bytecode: u32 = 0;
 
     switch (en) {
-        .hlt => {
+        .HLT => {
             bytecode = 0x01 << @intCast(2 * 8);
         },
-        .jmp => {
+        .JMP => {
             const arg = iter.next() orelse {
                 std.debug.panic("Expected arg after JMP", .{});
             };
@@ -136,26 +181,7 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
 
             // TODO: support labels
         },
-        .mov => {
-            const reg = iter.next() orelse {
-                std.debug.panic("Expected reg after MOV", .{});
-            };
-
-            const arg = iter.next() orelse {
-                std.debug.panic("Expected 2nd arg after MOV", .{});
-            };
-
-            const reg_mapped = map_to_reg(reg);
-
-            const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
-
-            if (arg_mapped_to_reg == null) {
-                bytecode |= 0x04 << @intCast(2 * 8) | reg_mapped << 8 | map_to_num(arg);
-            } else {
-                bytecode |= 0x05 << @intCast(2 * 8) | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
-            }
-        },
-        .mul => {
+        .MUL => {
             const reg1 = iter.next() orelse {
                 std.debug.panic("Expected 1st reg for MUL", .{});
             };
@@ -168,7 +194,7 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
 
             bytecode |= 0x06 << @intCast(2 * 8) | reg1_mapped << 8 | reg2_mapped;
         },
-        .div => {
+        .DIV => {
             const reg1 = iter.next() orelse {
                 std.debug.panic("Expected 1st reg for DIV", .{});
             };
@@ -181,8 +207,56 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
 
             bytecode |= 0x07 << @intCast(2 * 8) | reg1_mapped << 8 | reg2_mapped;
         },
+        .NOT, .NEG, .INC, .DEC, .MIRROR => {
+            const arg = iter.next() orelse {
+                std.debug.panic("Expected reg after {s}", .{inst});
+            };
+
+            const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
+
+            if (arg_mapped_to_reg == null) {
+                std.debug.panic("Expected reg after {s}", .{inst});
+            } else {
+                bytecode |= (0x1 | en.get_op_code()) << @intCast(2 * 8) | @intFromEnum(arg_mapped_to_reg.?);
+            }
+        },
+        .MOV, .CMP, .TEST => {
+            const reg = iter.next() orelse {
+                std.debug.panic("Expected reg after {s}", .{inst});
+            };
+
+            const arg = iter.next() orelse {
+                std.debug.panic("Expected 2nd arg after {s}", .{inst});
+            };
+
+            const reg_mapped = map_to_reg(reg);
+
+            const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
+
+            if (arg_mapped_to_reg == null) {
+                bytecode |= en.get_op_code() << @intCast(2 * 8) | reg_mapped << 8 | map_to_num(arg);
+            } else {
+                bytecode |= (en.get_op_code() + 1) << @intCast(2 * 8) | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
+            }
+        },
         else => {
-            std.debug.print("ELse {s}", .{inst});
+            const reg = iter.next() orelse {
+                std.debug.panic("Expected reg after {s}", .{inst});
+            };
+
+            const arg = iter.next() orelse {
+                std.debug.panic("Expected 2nd arg after {s}", .{inst});
+            };
+
+            const reg_mapped = map_to_reg(reg);
+
+            const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
+
+            if (arg_mapped_to_reg == null) {
+                bytecode |= (0x10 | en.get_op_code()) << @intCast(2 * 8) | reg_mapped << 8 | map_to_num(arg);
+            } else {
+                bytecode |= en.get_op_code() << @intCast(2 * 8) | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
+            }
         },
     }
     return bytecode;

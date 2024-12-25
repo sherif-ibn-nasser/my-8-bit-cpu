@@ -4,3 +4,5 @@ jmp al
 jmp 0x88
 MUL AL, BL
 div DL, CL
+
+add al, 0x55

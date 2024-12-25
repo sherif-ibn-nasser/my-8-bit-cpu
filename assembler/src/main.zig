@@ -84,8 +84,7 @@ pub fn main() !void {
     // Iterate over the buffer.
     const instructions = std.mem.splitAny(u8, buffer, " ,\r\n");
 
-    var iter = InstIter.init(allocator, instructions);
-    defer iter.free();
+    var iter = InstIter{ .iter = instructions };
 
     var i: u32 = 0;
     while (iter.next()) |inst| {
@@ -97,40 +96,22 @@ pub fn main() !void {
 
 const InstIter = struct {
     iter: std.mem.SplitIterator(u8, .any),
-    allocator: std.mem.Allocator,
-    allocated_strings: std.ArrayList([]u8),
+    buf: [1024]u8 = undefined,
 
     const Self = @This();
-
-    pub fn init(allocator: std.mem.Allocator, iter: std.mem.SplitIterator(u8, .any)) Self {
-        return Self{
-            .iter = iter,
-            .allocator = allocator,
-            .allocated_strings = std.ArrayList([]u8).init(allocator),
-        };
-    }
 
     pub fn next(self: *Self) ?[]const u8 {
         const next_inst = self.iter.next() orelse return null;
         if (std.mem.eql(u8, next_inst, "")) {
             return self.next();
         } else {
-            // Allocate memory for the new string
-            var output: []u8 = self.allocator.alloc(u8, next_inst.len) catch return null;
-            // Convert `next_inst` to uppercase and copy it to `output`
-            _ = std.ascii.upperString(output, next_inst);
-            // Add the allocation to the list for later cleanup
-            _ = self.allocated_strings.append(output) catch return null;
-            // Return the immutable version of `output`
-            return output[0..];
+            const len = next_inst.len;
+            if (len > self.buf.len) {
+                return null; // Handle the case where the buffer is too small
+            }
+            _ = std.ascii.upperString(self.buf[0..len], next_inst);
+            return self.buf[0..len];
         }
-    }
-
-    pub fn free(self: *Self) void {
-        for (self.allocated_strings.items) |item| {
-            self.allocator.free(item);
-        }
-        self.allocated_strings.deinit();
     }
 };
 
@@ -185,11 +166,11 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             const reg1 = iter.next() orelse {
                 std.debug.panic("Expected 1st reg for MUL", .{});
             };
+            const reg1_mapped = map_to_reg(reg1);
+
             const reg2 = iter.next() orelse {
                 std.debug.panic("Expected 2nd reg for MUL", .{});
             };
-
-            const reg1_mapped = map_to_reg(reg1);
             const reg2_mapped = map_to_reg(reg2);
 
             bytecode |= 0x06 << @intCast(2 * 8) | reg1_mapped << 8 | reg2_mapped;
@@ -198,11 +179,12 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             const reg1 = iter.next() orelse {
                 std.debug.panic("Expected 1st reg for DIV", .{});
             };
+
+            const reg1_mapped = map_to_reg(reg1);
+
             const reg2 = iter.next() orelse {
                 std.debug.panic("Expected 2nd reg for DIV", .{});
             };
-
-            const reg1_mapped = map_to_reg(reg1);
             const reg2_mapped = map_to_reg(reg2);
 
             bytecode |= 0x07 << @intCast(2 * 8) | reg1_mapped << 8 | reg2_mapped;
@@ -225,11 +207,11 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
                 std.debug.panic("Expected reg after {s}", .{inst});
             };
 
+            const reg_mapped = map_to_reg(reg);
+
             const arg = iter.next() orelse {
                 std.debug.panic("Expected 2nd arg after {s}", .{inst});
             };
-
-            const reg_mapped = map_to_reg(reg);
 
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
 
@@ -244,11 +226,11 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
                 std.debug.panic("Expected reg after {s}", .{inst});
             };
 
+            const reg_mapped = map_to_reg(reg);
+
             const arg = iter.next() orelse {
                 std.debug.panic("Expected 2nd arg after {s}", .{inst});
             };
-
-            const reg_mapped = map_to_reg(reg);
 
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
 

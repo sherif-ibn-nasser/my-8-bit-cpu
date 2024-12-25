@@ -1,1 +1,2 @@
-mov RAX, -0xF
+mov al, 0xF
+mov BL, CL

@@ -9,6 +9,13 @@ const Instruction = enum {
     div,
 };
 
+const Reg = enum(u32) {
+    al = 0,
+    bl = 1,
+    cl = 2,
+    dl = 3,
+};
+
 pub fn main() !void {
     // Get an allocator.
     var gpa = std.heap.GeneralPurposeAllocator(.{}){};
@@ -32,25 +39,53 @@ pub fn main() !void {
     // Iterate over the buffer.
     const instructions = std.mem.splitAny(u8, buffer, " ,\r\n");
 
-    var iter = InstIter{ .iter = instructions };
+    var iter = InstIter.init(allocator, instructions);
+    defer iter.free();
 
+    var i: u32 = 0;
     while (iter.next()) |inst| {
-        _ = map(inst, &iter);
+        const bytecode = map(inst, &iter);
+        std.debug.print("{X:0>8}: {X:0>8}\n", .{ i, bytecode });
+        i += 1;
     }
 }
 
 const InstIter = struct {
     iter: std.mem.SplitIterator(u8, .any),
+    allocator: std.mem.Allocator,
+    allocated_strings: std.ArrayList([]u8),
 
     const Self = @This();
+
+    pub fn init(allocator: std.mem.Allocator, iter: std.mem.SplitIterator(u8, .any)) Self {
+        return Self{
+            .iter = iter,
+            .allocator = allocator,
+            .allocated_strings = std.ArrayList([]u8).init(allocator),
+        };
+    }
 
     pub fn next(self: *Self) ?[]const u8 {
         const next_inst = self.iter.next() orelse return null;
         if (std.mem.eql(u8, next_inst, "")) {
             return self.next();
         } else {
-            return next_inst;
+            // Allocate memory for the new string
+            var output: []u8 = self.allocator.alloc(u8, next_inst.len) catch return null;
+            // Convert `next_inst` to lowercase and copy it to `output`
+            _ = std.ascii.lowerString(output, next_inst);
+            // Add the allocation to the list for later cleanup
+            _ = self.allocated_strings.append(output) catch return null;
+            // Return the immutable version of `output`
+            return output[0..];
         }
+    }
+
+    pub fn free(self: *Self) void {
+        for (self.allocated_strings.items) |item| {
+            self.allocator.free(item);
+        }
+        self.allocated_strings.deinit();
     }
 };
 
@@ -79,16 +114,28 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
         // }
         return 5;
     };
+
+    var bytecode: u32 = 0;
+
     switch (en) {
         .mov => {
-            // const reg = iter.next() orelse {
-            //     std.debug.panic("Expected arg after MOV", .{});
-            // };
-            // const arg = iter.next() orelse {
-            //     std.debug.panic("Expected arg after MOV", .{});
-            // };
+            const reg = iter.next() orelse {
+                std.debug.panic("Expected arg after MOV", .{});
+            };
 
-            // std.debug.print("MOV REG:{s}, ARG:{s}", .{ reg, arg });
+            const arg = iter.next() orelse {
+                std.debug.panic("Expected arg after MOV", .{});
+            };
+
+            const reg_mapped = map_to_reg(reg);
+
+            const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
+
+            if (arg_mapped_to_reg == null) {
+                bytecode |= 0x04 << @intCast(2 * 8) | reg_mapped << 8 | map_to_num(arg);
+            } else {
+                bytecode |= 0x05 << @intCast(2 * 8) | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
+            }
         },
         .jmp => {
             if (iter.next()) |inst2| {
@@ -99,5 +146,17 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             std.debug.print("ELse {s}", .{inst});
         },
     }
-    return 0;
+    return bytecode;
+}
+
+pub fn map_to_reg(buf: []const u8) u32 {
+    return @intFromEnum(std.meta.stringToEnum(Reg, buf) orelse {
+        std.debug.panic("Invalid regestier value `{s}`", .{buf});
+    });
+}
+
+pub fn map_to_num(buf: []const u8) u8 {
+    return std.fmt.parseInt(u8, buf, 0) catch {
+        std.debug.panic("Invalid number arg `{s}`", .{buf});
+    };
 }

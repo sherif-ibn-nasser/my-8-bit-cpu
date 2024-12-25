@@ -155,11 +155,15 @@ const Reg = enum(u32) {
     DL = 3,
 };
 
+const LabelToResolve = struct {
+    inst_address: u32,
+    label: []u8,
+};
+
 pub fn main() !void {
-    // Get an allocator.
-    var gpa = std.heap.GeneralPurposeAllocator(.{}){};
-    const allocator = gpa.allocator();
-    defer _ = gpa.deinit();
+    var arena = std.heap.ArenaAllocator.init(std.heap.page_allocator);
+    defer arena.deinit();
+    const allocator = arena.allocator();
 
     const path_null = std.os.argv[1];
     const path = std.mem.span(path_null);
@@ -175,16 +179,50 @@ pub fn main() !void {
     const buffer = try in_file.readToEndAlloc(allocator, stat.size);
     defer allocator.free(buffer);
 
+    var bytecodes = std.ArrayList(u32).init(allocator);
+    defer bytecodes.deinit();
+
+    var labels_to_resolve = std.ArrayList(LabelToResolve).init(allocator);
+    defer labels_to_resolve.deinit();
+
+    var labels = std.StringHashMap(u32).init(allocator);
+    defer labels.deinit();
+
     // Iterate over the buffer.
     const instructions = std.mem.splitAny(u8, buffer, " ,\r\n");
 
     var iter = InstIter{ .iter = instructions };
 
-    var i: u32 = 0;
     while (iter.next()) |inst| {
-        const bytecode = map(inst, &iter);
-        std.debug.print("{X:0>8}: {X:0>8}\n", .{ i, bytecode });
-        i += 1;
+        const address: u32 = @intCast(bytecodes.items.len);
+        if (inst[inst.len - 1] == ':') {
+            const label = labels_to_resolve.allocator.alloc(u8, inst.len - 1) catch {
+                std.debug.panic("Allocator failed", .{});
+            };
+            @memcpy(label, inst[0 .. inst.len - 1]);
+
+            const entry = labels.get(label);
+
+            if (entry) |_| {
+                std.debug.panic("Duplicate label `{s}`", .{label});
+            } else {
+                _ = try labels.put(label, address);
+            }
+            continue;
+        }
+        const bytecode = map(address, inst, &iter, &labels_to_resolve);
+        _ = try bytecodes.append(bytecode);
+    }
+
+    for (labels_to_resolve.items) |label_to_resolve| {
+        const resolved_label_address = labels.get(label_to_resolve.label) orelse {
+            std.debug.panic("Unresolved label `{s}`", .{label_to_resolve.label});
+        };
+        bytecodes.items[label_to_resolve.inst_address] |= resolved_label_address << 8;
+    }
+
+    for (bytecodes.items) |bytecode| {
+        std.debug.print("{X:0>8}\n", .{bytecode});
     }
 }
 
@@ -209,7 +247,7 @@ const InstIter = struct {
     }
 };
 
-pub fn map(inst: []const u8, iter: *InstIter) u32 {
+pub fn map(address: u32, inst: []const u8, iter: *InstIter, labels_to_resolve: *std.ArrayList(LabelToResolve)) u32 {
     var bytecode: u32 = 0;
 
     var mut_inst = inst;
@@ -263,9 +301,22 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
 
             if (arg_mapped_to_reg == null) {
-                bytecode |= 0x02 << 2 * 8 | @as(u32, map_to_num(arg)) << 8;
+                const parsed_num = std.fmt.parseInt(u8, arg, 0);
+
+                if (parsed_num) |num| {
+                    bytecode |= 0x02 << 2 * 8 | @as(u32, num) << 8;
+                } else |_| {
+                    bytecode |= 0x02 << 2 * 8;
+                    const label = labels_to_resolve.allocator.alloc(u8, arg.len) catch {
+                        std.debug.panic("Allocator failed", .{});
+                    };
+                    @memcpy(label, arg);
+                    labels_to_resolve.append(.{ .inst_address = address, .label = label }) catch {
+                        std.debug.panic("Failed appending to arraylist", .{});
+                    };
+                }
             } else {
-                bytecode |= 0x03 << 2 * 8 | @intFromEnum(arg_mapped_to_reg.?);
+                bytecode |= 0x03 << 2 * 8 | @intFromEnum(arg_mapped_to_reg.?) << 8;
             }
 
             // TODO: support labels

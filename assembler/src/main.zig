@@ -1,5 +1,99 @@
 const std = @import("std");
 
+const Condition = enum {
+    // ZF
+    Z,
+    E,
+    // ~ZF
+    NZ,
+    NE,
+    // SF
+    S,
+    // ~SF
+    NS,
+    // ~(ZF | (SF ^ VF))
+    G,
+    NLE,
+    // ~(SF ^ VF)
+    GE,
+    NL,
+    // SF ^ VF
+    L,
+    NGE,
+    // ZF | (SF ^ VF)
+    LE,
+    NG,
+    // ~(ZF | CF)
+    A,
+    NBE,
+    // ~CF
+    NC,
+    AE,
+    NB,
+    // CF
+    C,
+    B,
+    NAE,
+    // ZF | CF
+    BE,
+    NA,
+    // VF
+    V,
+    // ~VF
+    NV,
+    // PF
+    P,
+    // ~PF
+    NP,
+    // AF
+    HC,
+    // ~AF
+    NHC,
+
+    const Self = @This();
+
+    pub fn get_op_code(self: Self) u32 {
+        return switch (self) {
+            // ZF
+            .Z, .E => 0x08,
+            // ~ZF
+            .NZ, .NE => 0x10,
+            // SF
+            .S => 0x20,
+            // ~SF
+            .NS => 0x30,
+            // ~(ZF | (SF ^ VF))
+            .G, .NLE => 0x40,
+            // ~(SF ^ VF)
+            .GE, .NL => 0x50,
+            // SF ^ VF
+            .L, .NGE => 0x60,
+            // ZF | (SF ^ VF)
+            .LE, .NG => 0x70,
+            // ~(ZF | CF)
+            .A, .NBE => 0x80,
+            // ~CF
+            .NC, .AE, .NB => 0x90,
+            // CF
+            .C, .B, .NAE => 0xA0,
+            // ZF | CF
+            .BE, .NA => 0xB0,
+            // VF
+            .V => 0xC0,
+            // ~VF
+            .NV => 0xD0,
+            // PF
+            .P => 0xE0,
+            // ~PF
+            .NP => 0xF0,
+            // AF
+            .HC => 0xE1,
+            // ~AF
+            .NHC => 0xF1,
+        };
+    }
+};
+
 const Instruction = enum {
     NOP,
     HLT,
@@ -116,8 +210,24 @@ const InstIter = struct {
 };
 
 pub fn map(inst: []const u8, iter: *InstIter) u32 {
-    const en = std.meta.stringToEnum(Instruction, inst) orelse {
-        const num = std.fmt.parseUnsigned(i8, inst, 0) catch {
+    var bytecode: u32 = 0;
+
+    var mut_inst = inst;
+
+    if (inst[inst.len - 1] == '?' and inst.len > 1) {
+        const condition = std.meta.stringToEnum(Condition, inst[0 .. inst.len - 1]) orelse {
+            std.debug.panic("Illegal condition `{s}`", .{inst});
+        };
+
+        mut_inst = iter.next() orelse {
+            std.debug.panic("Expected instruction after condition `{s}`", .{inst});
+        };
+
+        bytecode = condition.get_op_code() << 3 * 8;
+    }
+
+    const en = std.meta.stringToEnum(Instruction, mut_inst) orelse {
+        const num = std.fmt.parseUnsigned(i8, mut_inst, 0) catch {
             return 5;
         };
 
@@ -140,8 +250,6 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
         // }
         return 5;
     };
-
-    var bytecode: u32 = 0;
 
     switch (en) {
         .HLT => {
@@ -191,26 +299,26 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
         },
         .NOT, .NEG, .INC, .DEC, .MIRROR => {
             const arg = iter.next() orelse {
-                std.debug.panic("Expected reg after {s}", .{inst});
+                std.debug.panic("Expected reg after {s}", .{mut_inst});
             };
 
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
 
             if (arg_mapped_to_reg == null) {
-                std.debug.panic("Expected reg after {s}", .{inst});
+                std.debug.panic("Expected reg after {s}", .{mut_inst});
             } else {
                 bytecode |= (0x1 | en.get_op_code()) << @intCast(2 * 8) | @intFromEnum(arg_mapped_to_reg.?);
             }
         },
         .MOV, .CMP, .TEST => {
             const reg = iter.next() orelse {
-                std.debug.panic("Expected reg after {s}", .{inst});
+                std.debug.panic("Expected reg after {s}", .{mut_inst});
             };
 
             const reg_mapped = map_to_reg(reg);
 
             const arg = iter.next() orelse {
-                std.debug.panic("Expected 2nd arg after {s}", .{inst});
+                std.debug.panic("Expected 2nd arg after {s}", .{mut_inst});
             };
 
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
@@ -223,13 +331,13 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
         },
         else => {
             const reg = iter.next() orelse {
-                std.debug.panic("Expected reg after {s}", .{inst});
+                std.debug.panic("Expected reg after {s}", .{mut_inst});
             };
 
             const reg_mapped = map_to_reg(reg);
 
             const arg = iter.next() orelse {
-                std.debug.panic("Expected 2nd arg after {s}", .{inst});
+                std.debug.panic("Expected 2nd arg after {s}", .{mut_inst});
             };
 
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);

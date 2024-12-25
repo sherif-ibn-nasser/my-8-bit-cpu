@@ -253,7 +253,7 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
 
     switch (en) {
         .HLT => {
-            bytecode = 0x01 << @intCast(2 * 8);
+            bytecode = 0x01 << 2 * 8;
         },
         .JMP => {
             const arg = iter.next() orelse {
@@ -263,9 +263,9 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
 
             if (arg_mapped_to_reg == null) {
-                bytecode |= 0x02 << @intCast(2 * 8) | @as(u32, map_to_num(arg)) << 8;
+                bytecode |= 0x02 << 2 * 8 | @as(u32, map_to_num(arg)) << 8;
             } else {
-                bytecode |= 0x03 << @intCast(2 * 8) | @intFromEnum(arg_mapped_to_reg.?);
+                bytecode |= 0x03 << 2 * 8 | @intFromEnum(arg_mapped_to_reg.?);
             }
 
             // TODO: support labels
@@ -281,7 +281,7 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             };
             const reg2_mapped = map_to_reg(reg2);
 
-            bytecode |= 0x06 << @intCast(2 * 8) | reg1_mapped << 8 | reg2_mapped;
+            bytecode |= 0x06 << 2 * 8 | reg1_mapped << 8 | reg2_mapped;
         },
         .DIV => {
             const reg1 = iter.next() orelse {
@@ -295,7 +295,7 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             };
             const reg2_mapped = map_to_reg(reg2);
 
-            bytecode |= 0x07 << @intCast(2 * 8) | reg1_mapped << 8 | reg2_mapped;
+            bytecode |= 0x07 << 2 * 8 | reg1_mapped << 8 | reg2_mapped;
         },
         .NOT, .NEG, .INC, .DEC, .MIRROR => {
             const arg = iter.next() orelse {
@@ -307,7 +307,7 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             if (arg_mapped_to_reg == null) {
                 std.debug.panic("Expected reg after {s}", .{mut_inst});
             } else {
-                bytecode |= (0x1 | en.get_op_code()) << @intCast(2 * 8) | @intFromEnum(arg_mapped_to_reg.?);
+                bytecode |= (0x1 | en.get_op_code()) << 2 * 8 | @intFromEnum(arg_mapped_to_reg.?);
             }
         },
         .MOV, .CMP, .TEST => {
@@ -324,9 +324,9 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
 
             if (arg_mapped_to_reg == null) {
-                bytecode |= en.get_op_code() << @intCast(2 * 8) | reg_mapped << 8 | map_to_num(arg);
+                bytecode |= en.get_op_code() << 2 * 8 | reg_mapped << 8 | map_to_num(arg);
             } else {
-                bytecode |= (en.get_op_code() + 1) << @intCast(2 * 8) | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
+                bytecode |= (en.get_op_code() + 1) << 2 * 8 | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
             }
         },
         else => {
@@ -343,9 +343,9 @@ pub fn map(inst: []const u8, iter: *InstIter) u32 {
             const arg_mapped_to_reg = std.meta.stringToEnum(Reg, arg);
 
             if (arg_mapped_to_reg == null) {
-                bytecode |= (0x10 | en.get_op_code()) << @intCast(2 * 8) | reg_mapped << 8 | map_to_num(arg);
+                bytecode |= (0x10 | en.get_op_code()) << 2 * 8 | reg_mapped << 8 | map_to_num(arg);
             } else {
-                bytecode |= en.get_op_code() << @intCast(2 * 8) | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
+                bytecode |= en.get_op_code() << 2 * 8 | reg_mapped << 8 | @intFromEnum(arg_mapped_to_reg.?);
             }
         },
     }

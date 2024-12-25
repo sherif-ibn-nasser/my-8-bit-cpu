@@ -168,11 +168,12 @@ pub fn main() !void {
     const path_null = std.os.argv[1];
     const path = std.mem.span(path_null);
 
+    const path_out_null = std.os.argv[2];
+    const path_out = std.mem.span(path_out_null);
+
     // Open a file.
     const in_file = try std.fs.cwd().openFile(path, .{});
     defer in_file.close();
-
-    // const out_file = try std.fs.cwd().createFile("app.hex", .{});
 
     // Read the file into a buffer.
     const stat = try in_file.stat();
@@ -221,8 +222,21 @@ pub fn main() !void {
         bytecodes.items[label_to_resolve.inst_address] |= resolved_label_address << 8;
     }
 
+    // Create the output file
+    const out_file = try std.fs.cwd().createFile(path_out, .{});
+    defer out_file.close();
+
     for (bytecodes.items) |bytecode| {
-        std.debug.print("{X:0>8}\n", .{bytecode});
+        const hex_string = std.fmt.allocPrint(allocator, "{X:0>8}\n", .{bytecode}) catch {
+            std.debug.print("Failed to format bytecode\n", .{});
+            return;
+        };
+
+        // Write the formatted hexadecimal string to the file
+        out_file.writeAll(hex_string) catch {
+            std.debug.print("Failed to write to file\n", .{});
+            return;
+        };
     }
 }
 
@@ -247,7 +261,12 @@ const InstIter = struct {
     }
 };
 
-pub fn map(address: u32, inst: []const u8, iter: *InstIter, labels_to_resolve: *std.ArrayList(LabelToResolve)) u32 {
+pub fn map(
+    address: u32,
+    inst: []const u8,
+    iter: *InstIter,
+    labels_to_resolve: *std.ArrayList(LabelToResolve),
+) u32 {
     var bytecode: u32 = 0;
 
     var mut_inst = inst;

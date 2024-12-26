@@ -316,8 +316,6 @@ pub fn map(
             } else {
                 bytecode |= 0x03 << 2 * 8 | @intFromEnum(arg_mapped_to_reg.?) << 8;
             }
-
-            // TODO: support labels
         },
         .MUL => {
             const reg1 = iter.next() orelse {
@@ -356,7 +354,7 @@ pub fn map(
             if (arg_mapped_to_reg == null) {
                 std.debug.panic("Expected reg after {s}", .{mut_inst});
             } else {
-                bytecode |= (0x1 | en.get_op_code()) << 2 * 8 | @intFromEnum(arg_mapped_to_reg.?);
+                bytecode |= (0x1 | en.get_op_code()) << 2 * 8 | @intFromEnum(arg_mapped_to_reg.?) << 8;
             }
         },
         .MOV, .CMP, .TEST => {
